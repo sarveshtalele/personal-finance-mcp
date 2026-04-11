@@ -176,15 +176,14 @@ Output:
 ## 🏗 Architecture
 
 ```
-Tools Layer → Calculators Layer → Models Layer
-     │               │                │
-  MCP interface   Pure math      Pydantic validation
-  + formatting    functions      + enums
+Tools Layer  ───────→  Models Layer
+     │                      │
+  MCP interface        Pydantic validation
+  + core math               + enums
 ```
 
-- **Calculators**: Pure functions, no side effects, deterministic
-- **Tools**: MCP wrappers with formatting
-- **Models**: Pydantic schemas for input validation
+- **Tools**: FastMCP wrappers + deterministic mathematical functions.
+- **Models**: Pydantic schemas for strict input validation.
 
 See [Architecture.md](Architecture.md) for full details.
 
@@ -197,23 +196,20 @@ personal-finance-mcp/
 ├── src/
 │   ├── server.py              # MCP server entry point
 │   ├── __main__.py            # python -m src entry point
-│   ├── calculators/           # Pure math functions (7 modules)
+│   ├── tools/                 # Pure math & MCP wrappers
 │   │   ├── tvm.py             # Time Value of Money
 │   │   ├── debt.py            # EMI, amortization
-│   │   ├── ratios.py          # Financial ratios, health score
+│   │   ├── planning.py        # Financial ratios, health score
 │   │   ├── bonds.py           # Bond pricing, YTM, duration
 │   │   ├── stocks.py          # DDM, DCF, P/E valuation
 │   │   ├── mutual_funds.py    # SIP, SWP, CAGR, NAV
 │   │   └── portfolio.py       # MPT, CAPM, Sharpe, alpha
-│   ├── tools/                 # MCP tool definitions (7 modules)
-│   ├── models/                # Pydantic schemas & enums
+│   ├── models/                # Pydantic validation schemas
+│   │   ├── schemas.py         # Type definitions & constraints
+│   │   └── enums.py           # Validation Enums
 │   └── utils/                 # Formatters & helpers
 ├── tests/                     # 100+ unit & integration tests
-├── docs/                      # setup, testing, deployment, documentation
-├── config/                    # Claude Desktop config example
-├── Plan.md                    # Project roadmap
-├── Architecture.md            # System design
-├── log.md                     # Development changelog
+├── docs/                      # documentation & architecture
 ├── Dockerfile                 # Container deployment
 ├── run_production.py          # SSE server launcher
 ├── pyproject.toml             # Package configuration

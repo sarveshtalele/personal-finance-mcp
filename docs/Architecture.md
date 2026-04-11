@@ -23,45 +23,26 @@
 │  └──────────────────┬─────────────────────────────────┘  │
 │                     │                                    │
 │  ┌──────────────────▼────────────────────────────────┐   │
-│  │              Tools Layer (tools/)                 │   │
+│  │              Tools Layer (src/tools/)             │   │
+│  │  (Contains BOTH pure math logic & MCP wrappers)   │   │
 │  │  ┌──────────┐ ┌──────────┐ ┌──────────────────┐   │   │
-│  │  │ TVM      │ │ Debt     │ │ Goal Planner     │   │   │
-│  │  │ Tools    │ │ Tools    │ │ Tools            │   │   │
+│  │  │ tvm.py   │ │ debt.py  │ │ planning.py      │   │   │
 │  │  └────┬─────┘ └────┬─────┘ └────────┬─────────┘   │   │
 │  │  ┌────┴─────┐ ┌────┴─────┐ ┌────────┴─────────┐   │   │
-│  │  │ Bond     │ │ Stock    │ │ Portfolio        │   │   │
-│  │  │ Tools    │ │ Tools    │ │ Tools            │   │   │
+│  │  │ bonds.py │ │ stocks.py│ │ portfolio.py     │   │   │
 │  │  └────┬─────┘ └────┬─────┘ └────────┬─────────┘   │   │
-│  │  ┌────┴─────┐ ┌────┴─────┐ ┌────────┴─────────┐   │   │
-│  │  │ MF       │ │ Budget   │ │ Retirement       │   │   │
-│  │  │ Tools    │ │ Tools    │ │ Tools            │   │   │
-│  │  └──────────┘ └──────────┘ └──────────────────┘   │   │
+│  │               ┌────┴─────┐                    │   │
+│  │               │ mutual_  │                    │   │
+│  │               │ funds.py │                    │   │
+│  │               └──────────┘                    │   │
 │  └──────────────────┬────────────────────────────────┘   │
 │                     │                                    │
 │  ┌──────────────────▼────────────────────────────────┐   │
-│  │          Calculators Layer ()                     │.  │
-│  │  Pure functions, no side effects, deterministic   │   │
-│  │  ┌─────────────┐  ┌──────────────┐                │   │
-│  │  │ tvm.py      │  │ debt.py      │                │   │
-│  │  │ FV/PV/PMT   │  │ EMI/Amort    │                │   │
-│  │  └─────────────┘  └──────────────┘                │   │
-│  │  ┌─────────────┐  ┌──────────────┐                │   │
-│  │  │ bonds.py    │  │ portfolio.py │                │   │
-│  │  │ Price/YTM   │  │ Risk/Return  │                │   │
-│  │  └─────────────┘  └──────────────┘                │   │
-│  │  ┌─────────────┐  ┌──────────────┐                │   │
-│  │  │ stocks.py   │  │ ratios.py    │                │   │
-│  │  │ DCF/DDM     │  │ Fin. Ratios  │                │   │
-│  │  └─────────────┘  └──────────────┘                │   │
-│  └──────────────────┬────────────────────────────────┘   │
-│                     │                                    │
-│  ┌──────────────────▼────────────────────────────────┐   │
-│  │              Models Layer (models/)               │   │
+│  │              Models Layer (src/models/)           │   │
 │  │  Pydantic models for input validation & output    │   │
 │  │  ┌──────────────────────────────────────────────┐ │   │
-│  │  │ inputs.py  - Request schemas                 │ │   │
-│  │  │ outputs.py - Response schemas                │ │   │
-│  │  │ enums.py   - Frequency, CompoundType, etc.   │ │   │
+│  │  │ schemas.py - Request/Response schemas        │ │   │
+│  │  │ enums.py   - Validation Enumerators          │ │   │
 │  │  └──────────────────────────────────────────────┘ │   │
 │  └───────────────────────────────────────────────────┘   │
 │                                                          │
@@ -90,16 +71,14 @@
 
 ### 3. Layered Architecture
 ```
-Tools → Calculators → Models
-  │          │           │
-  │          │           └── Data validation & structure
-  │          └── Pure math functions
-  └── MCP interface, formatting, context
+Tools ─────────────→ Models
+  │                     │
+  │                     └── Data validation & structure
+  └── MCP interface, formatting, & pure mathematical calculations
 ```
 
 ### 4. Single Responsibility
-- **Calculators**: Pure math. No formatting, no MCP awareness.
-- **Tools**: MCP tool definitions. Calls calculators, formats output.
+- **Tools**: Houses both the core mathematical logic and the MCP tool definition that formats outputs.
 - **Models**: Pydantic schemas. Validation only.
 
 ## Data Flow
@@ -111,82 +90,64 @@ Client Request (JSON)
   MCP Server (FastMCP)
        │
        ▼
-  Tool Function
-       │ validates via Pydantic
-       ▼
-  Calculator Function(s)
-       │ pure math
-       ▼
-  Result Dict
-       │ formatted to string
+  Tool Function (src/tools/)
+       │ 1. Validates inputs via Pydantic Schemas
+       │ 2. Computes pure deterministic mathematics
+       │ 3. Formats results to structured string
        ▼
   MCP Response (text)
 ```
 
 ## Tool Categories & Count
 
-| Category | Tools | Calculator Module |
+| Category | Tools | Target Module |
 |----------|-------|-------------------|
-| Time Value of Money | 6 | `tvm.py` |
-| Debt & Loans | 4 | `debt.py` |
-| Financial Position | 4 | `ratios.py` |
-| Goal Planning | 3 | `tvm.py` + `ratios.py` |
-| Bond Analysis | 4 | `bonds.py` |
-| Stock Valuation | 3 | `stocks.py` |
-| Mutual Funds | 3 | `mutual_funds.py` |
-| Portfolio Analysis | 4 | `portfolio.py` |
-| Comprehensive Plans | 4 | Multiple |
-| **Total** | **~35** | |
+| Time Value of Money | 10 | `tvm.py` |
+| Debt & Loans | 6 | `debt.py` |
+| Financial Planning | 9 | `planning.py` |
+| Bond Analysis | 6 | `bonds.py` |
+| Stock Valuation | 5 | `stocks.py` |
+| Mutual Funds | 7 | `mutual_funds.py` |
+| Portfolio Analysis | 11 | `portfolio.py` |
+| **Total** | **54** | All combined within `src/tools/` |
 
 ## File Structure
 ```
 personal-finance-mcp/
 ├── pyproject.toml          # Package config, dependencies
 ├── README.md
-├── Plan.md
-├── Architecture.md
-├── log.md
 ├── docs/
+│   ├── Architecture.md      # System design
+│   ├── CHANGELOG.md         # Development log
 │   ├── documentation.md
 │   ├── setup.md
 │   ├── testing.md
 │   └── deployment.md
-├── config/
-│   └── claude_desktop.json  # Example Claude Desktop config
 ├── src/
 │   ├── __init__.py
-│   ├── server.py            # MCP server entry point
+│   ├── server.py            # FastMCP server entry point
+│   ├── __main__.py          # python -m module execution
 │   ├── models/
 │   │   ├── __init__.py
 │   │   ├── enums.py         # Enumerations
-│   │   └── schemas.py       # Pydantic models
-│   ├── 
+│   │   └── schemas.py       # Pydantic validation schemas
+│   ├── tools/
 │   │   ├── __init__.py
-│   │   ├── tvm.py           # Time Value of Money
+│   │   ├── tvm.py           # Time Value of Money (Logic + MCP)
 │   │   ├── debt.py          # Debt & Loan calculations
-│   │   ├── ratios.py        # Financial ratios
+│   │   ├── planning.py      # Financial tools & Health checks
 │   │   ├── bonds.py         # Bond pricing & yields
 │   │   ├── stocks.py        # Stock valuation
 │   │   ├── mutual_funds.py  # MF calculations
 │   │   └── portfolio.py     # Portfolio analytics
-│   ├── tools/
-│   │   ├── __init__.py
-│   │   ├── tvm_tools.py
-│   │   ├── debt_tools.py
-│   │   ├── planning_tools.py
-│   │   ├── bond_tools.py
-│   │   ├── stock_tools.py
-│   │   ├── mf_tools.py
-│   │   ├── portfolio_tools.py
-│   │   └── comprehensive_tools.py
 │   └── utils/
 │       ├── __init__.py
-│       └── formatters.py
+│       └── formatters.py    # Monetary display mapping
 └── tests/
     ├── __init__.py
     ├── test_tvm.py
     ├── test_debt.py
-    ├── test_ratios.py
+    ├── test_planning.py
     ├── test_bonds.py
     ├── test_stocks.py
     ├── test_mutual_funds.py
