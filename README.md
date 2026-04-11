@@ -185,7 +185,7 @@ Tools Layer  ───────→  Models Layer
 - **Tools**: FastMCP wrappers + deterministic mathematical functions.
 - **Models**: Pydantic schemas for strict input validation.
 
-See [Architecture.md](Architecture.md) for full details.
+See [docs/Architecture.md](docs/Architecture.md) for full details.
 
 ---
 
