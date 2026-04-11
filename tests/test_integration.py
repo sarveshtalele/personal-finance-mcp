@@ -5,8 +5,6 @@ These tests call the tool functions (which internally call calculators)
 and verify the full pipeline: input → calculator → formatter → string output.
 """
 
-
-
 # ---------------------------------------------------------------------------
 # Helper: import the register function and build a mini-MCP for each module
 # ---------------------------------------------------------------------------

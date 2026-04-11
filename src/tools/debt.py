@@ -9,7 +9,6 @@ Core formulas:
 """
 
 
-
 def calculate_emi(principal: float, annual_rate: float, tenure_years: float) -> dict:
     """
     EMI = P × r × (1+r)^n / ((1+r)^n - 1)

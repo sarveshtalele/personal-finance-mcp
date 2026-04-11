@@ -10,7 +10,6 @@ Key formulas:
 """
 
 
-
 def sip_calculator(
     monthly_investment: float,
     annual_return: float,
