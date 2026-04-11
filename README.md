@@ -1,5 +1,7 @@
 # 💰 Personal Finance MCP Server
 
+mcp-name: io.github.sarveshtalele/personal-finance
+
 > **Deterministic personal finance calculator** powered by [Model Context Protocol](https://modelcontextprotocol.io/) — based on the **Core Financial Principles**.
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org)

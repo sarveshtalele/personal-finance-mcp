@@ -1,6 +1,6 @@
 [project]
 name = "personal-finance-mcp"
-version = "1.0.0"
+version = "1.0.1"
 description = "Complete Financial Planning MVP MCP Server"
 readme = "README.md"
 license = {text = "MIT"}

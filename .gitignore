@@ -36,3 +36,6 @@ server.log
 
 # Docker
 .dockerignore
+
+# Registration Tokens
+.mcpregistry_github_token
