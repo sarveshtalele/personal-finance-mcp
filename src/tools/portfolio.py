@@ -387,6 +387,7 @@ def portfolio_rebalancing(
     }
 
 
+# ruff: noqa: E402
 from mcp.server.fastmcp import FastMCP
 from ..utils.formatters import format_tool_response
 

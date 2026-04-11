@@ -186,6 +186,7 @@ def dividend_yield(dividend_per_share: float, market_price: float) -> dict:
     }
 
 
+# ruff: noqa: E402
 from mcp.server.fastmcp import FastMCP
 from ..utils.formatters import format_tool_response
 

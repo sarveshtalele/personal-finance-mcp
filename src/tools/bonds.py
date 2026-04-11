@@ -215,6 +215,7 @@ def zero_coupon_bond_price(
     }
 
 
+# ruff: noqa: E402
 from mcp.server.fastmcp import FastMCP
 from ..utils.formatters import format_tool_response
 

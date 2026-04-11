@@ -275,6 +275,7 @@ def required_monthly_savings(
     }
 
 
+# ruff: noqa: E402
 from mcp.server.fastmcp import FastMCP
 from ..utils.formatters import format_tool_response
 

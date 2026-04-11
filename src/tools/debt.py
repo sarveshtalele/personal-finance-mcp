@@ -153,7 +153,6 @@ def prepayment_impact(
 
         interest = balance * r
         total_interest_with += interest
-        principal_paid = emi - interest + monthly_prepayment
         actual_payment = min(emi + monthly_prepayment, balance + interest)
         balance -= actual_payment - interest
         total_paid += actual_payment
@@ -244,6 +243,7 @@ def invest_vs_prepay(
     }
 
 
+# ruff: noqa: E402
 from mcp.server.fastmcp import FastMCP
 from ..utils.formatters import format_tool_response
 

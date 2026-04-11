@@ -10,6 +10,7 @@ Transport: stdio (default), SSE (optional).
 """
 
 from mcp.server.fastmcp import FastMCP
+from .tools import tvm, debt, planning, bonds, stocks, mutual_funds, portfolio
 
 # Initialize the MCP server
 mcp = FastMCP(
@@ -23,7 +24,6 @@ mcp = FastMCP(
 )
 
 # Register all tool modules
-from .tools import tvm, debt, planning, bonds, stocks, mutual_funds, portfolio
 
 tvm.register(mcp)
 debt.register(mcp)
