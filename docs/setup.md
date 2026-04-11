@@ -8,27 +8,20 @@
 
 ## Installation
 
-### Option 1: Using uv (Recommended)
+## Global Installation
 
+Because this tool is globally published to PyPI, you don't even need to download the code to use it if you are using modern tools.
+
+### Option 1: Zero-Install (using uvx)
+If you have `uv` installed, it can dynamically fetch and run the package:
 ```bash
-# Clone the project
-cd personal-finance-mcp
-
-# Create virtual environment and install
-uv venv
-source .venv/bin/activate  # macOS/Linux
-# .venv\Scripts\activate   # Windows
-
-uv pip install -e ".[dev]"
+uvx personal-finance-mcp
 ```
 
-### Option 2: Using pip
-
+### Option 2: Global Pipeline (using pip)
+To natively install the executable into your python ecosystem:
 ```bash
-cd personal-finance-mcp
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
+pip install personal-finance-mcp
 ```
 
 ## Connect to Claude Desktop
@@ -40,11 +33,8 @@ pip install -e ".[dev]"
 {
   "mcpServers": {
     "personal-finance": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "run",
-        "--directory",
-        "/ABSOLUTE/PATH/TO/personal-finance-mcp",
         "personal-finance-mcp"
       ]
     }
@@ -52,7 +42,7 @@ pip install -e ".[dev]"
 }
 ```
 
-Replace `/ABSOLUTE/PATH/TO/personal-finance-mcp` with the actual path on your machine.
+*Note: If you don't use `uv`, you can replace `"uvx"` with `"python"` and `"args": ["-m", "personal_finance_mcp"]`.*
 
 3. Restart Claude Desktop
 4. You should see the hammer icon with 54 tools available
@@ -65,11 +55,8 @@ Claude Code auto-discovers MCP servers. Add to your project's `.claude/settings.
 {
   "mcpServers": {
     "personal-finance": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "run",
-        "--directory",
-        "/ABSOLUTE/PATH/TO/personal-finance-mcp",
         "personal-finance-mcp"
       ]
     }
@@ -82,7 +69,7 @@ Claude Code auto-discovers MCP servers. Add to your project's `.claude/settings.
 For remote MCP clients:
 
 ```bash
-source .venv/bin/activate
+# If installed normally:
 python -c "from src.server import mcp; mcp.run(transport='sse')"
 ```
 
@@ -108,8 +95,8 @@ python -c "from src.server import mcp; print(f'{len(mcp._tool_manager._tools)} t
 
 ## Troubleshooting
 
-### "No module named 'src'"
-Ensure you installed with `-e` (editable) flag: `uv pip install -e ".[dev]"`
+### "ModuleNotFoundError: No module named 'src'"
+If you're running locally from source, ensure you installed with the `-e` (editable) flag: `uv pip install -e ".[dev]"`
 
 ### Claude Desktop doesn't show tools
 - Check the path in config is absolute and correct

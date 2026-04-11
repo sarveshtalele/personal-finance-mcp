@@ -6,6 +6,7 @@ mcp-name: io.github.sarveshtalele/personal-finance
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![MCP SDK](https://img.shields.io/badge/MCP-1.0+-blueviolet)](https://modelcontextprotocol.io/)
+[![PyPI](https://img.shields.io/pypi/v/personal-finance-mcp?color=blue)](https://pypi.org/project/personal-finance-mcp/)
 [![Tests](https://img.shields.io/badge/tests-100%25_passing-brightgreen)](tests/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -25,33 +26,16 @@ Connect this server to **Claude Desktop**, **Claude Code**, or any MCP client to
 
 ## 📦 Quick Start
 
-### 1. Install
+### 1. Connect to Claude Desktop (Zero-Install Method)
 
-```bash
-cd personal-finance-mcp
-
-# Using uv (recommended)
-uv venv && source .venv/bin/activate
-uv pip install -e ".[dev]"
-
-# Or using pip
-python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-```
-
-### 2. Connect to Claude Desktop
-
-Add to your `claude_desktop_config.json`:
+Because this tool is globally published to PyPI, you don't even need to download the code to use it. Add this to your `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "personal-finance": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "run",
-        "--directory",
-        "/ABSOLUTE/PATH/TO/personal-finance-mcp",
         "personal-finance-mcp"
       ]
     }
@@ -62,11 +46,17 @@ Add to your `claude_desktop_config.json`:
 > **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 > **Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
 
-### 3. Test
+Restart Claude Desktop, and you will see the integration automatically.
+
+### 2. Manual Global Installation
+
+If you'd like to use it natively from your terminal without `uv`, just install it via standard `pip`:
 
 ```bash
-pytest tests/ -v            # Run all 100+ tests
-python -m src               # Start the server manually
+pip install personal-finance-mcp
+
+# Starts the server!
+personal-finance-mcp
 ```
 
 ---
@@ -266,6 +256,19 @@ See [docs/deployment.md](docs/deployment.md) for full instructions.
 3. **Layered** — Tools → Calculators → Models, each with single responsibility.
 4. **Offline-first** — Zero external API calls. Works without internet.
 5. **Theory-grounded** — Every formula is mathematically deterministic.
+
+---
+
+## 🌍 Local Development
+
+If you wish to modify the source code:
+```bash
+git clone https://github.com/sarveshtalele/personal-finance-mcp.git
+cd personal-finance-mcp
+uv venv && source .venv/bin/activate
+uv pip install -e ".[dev]"
+pytest tests/ -v
+```
 
 ---
 

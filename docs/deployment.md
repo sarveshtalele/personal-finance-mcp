@@ -7,25 +7,20 @@
 **Simplest option** — run on your machine, connect via stdio.
 
 ```bash
-# Install
-cd personal-finance-mcp
-uv venv && source .venv/bin/activate
-uv pip install -e .
+```bash
+# If using uv
+uvx personal-finance-mcp
 
-# Configure Claude Desktop
-# Add to ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
-# or %APPDATA%/Claude/claude_desktop_config.json (Windows)
+# If using pip
+pip install personal-finance-mcp
 ```
 
 ```json
 {
   "mcpServers": {
     "personal-finance": {
-      "command": "uv",
+      "command": "uvx",
       "args": [
-        "run",
-        "--directory",
-        "/Users/yourname/personal-finance-mcp",
         "personal-finance-mcp"
       ]
     }
@@ -136,12 +131,11 @@ This server is CPU-bound (pure math calculations), not I/O bound:
 
 ## Updating
 
+If you installed globally via `pip`:
 ```bash
-cd personal-finance-mcp
-git pull
-uv pip install -e .
-# Restart Claude Desktop or the SSE server
+pip install --upgrade personal-finance-mcp
 ```
+*(If you are using `uvx`, updates are pulled dynamically!).*
 
 ### 5. Hugging Face Spaces & Public Connectors
 

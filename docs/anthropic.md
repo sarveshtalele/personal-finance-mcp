@@ -14,11 +14,15 @@ The MCP Registry is currently in preview. This tutorial provides a meticulous, s
 Before registering with Anthropic, your project must be publicly accessible as a Python package.
 
 1. Ensure your `pyproject.toml` is completely filled out with your package name (e.g., `personal-finance-mcp`).
-2. Build the distribution files:
+2. **CRITICAL:** The Anthropic Registry requires you to prove ownership of the PyPI package. Ensure your PyPI package's `README.md` explicitly contains this string:
+   ```markdown
+   mcp-name: io.github.sarveshtalele/personal-finance
+   ```
+3. Build the distribution files:
    ```bash
    uv build
    ```
-3. Publish to PyPI (you will need to authenticate):
+4. Publish to PyPI (you will need to authenticate):
    ```bash
    uv publish
    ```
