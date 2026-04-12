@@ -251,7 +251,7 @@ See [docs/deployment.md](docs/deployment.md) for full instructions.
 4. **Offline-first** — Zero external API calls. Works without internet.
 5. **Theory-grounded** — Every formula is mathematically deterministic.
 
----
+
 
 ## Setup Guide
 
