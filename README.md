@@ -240,8 +240,6 @@ See [docs/deployment.md](docs/deployment.md) for full instructions.
 | [docs/testing.md](docs/testing.md) | Test structure & running tests |
 | [docs/deployment.md](docs/deployment.md) | Local, SSE, Docker deployment |
 | [docs/Architecture.md](docs/Architecture.md) | System design & data flow |
-| [Plan.md](Plan.md) | Roadmap & module breakdown |
-| [log.md](log.md) | Development changelog |
 
 ---
 
