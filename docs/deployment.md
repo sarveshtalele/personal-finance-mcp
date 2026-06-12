@@ -1,196 +1,87 @@
-# Deployment Guide
+# Deployment
 
-## Deployment Options
+The repository ships a **unified server** that serves the website, the JSON API,
+and the MCP connector on a single port — packaged as one Docker image.
 
-### 1. Local (Claude Desktop / Claude Code)
+```
+/        -> Next.js website (built into web/out)
+/mcp     -> MCP server over streamable-HTTP  (the connector URL)
+/api/*   -> JSON endpoints (tool catalog, calculators, live market data)
+```
 
-**Simplest option** — run on your machine, connect via stdio.
+## Run locally
 
 ```bash
-```bash
-# If using uv
-uvx personal-finance-mcp
+# 1. Build the website (once, or whenever the UI changes)
+cd web && npm install && npm run build && cd ..
 
-# If using pip
-pip install personal-finance-mcp
+# 2. Install + run the unified server
+pip install -e .
+python -m src.web            # http://localhost:7860
 ```
 
-```json
-{
-  "mcpServers": {
-    "personal-finance": {
-      "command": "uvx",
-      "args": [
-        "personal-finance-mcp"
-      ]
-    }
-  }
-}
-```
-
-### 2. SSE Server (Remote Access)
-
-Run as an HTTP server for remote MCP clients.
+Open `http://localhost:7860`, and add `http://localhost:7860/mcp` as an HTTP MCP
+server in Claude Code:
 
 ```bash
-# Start server
-python -c "from src.server import mcp; mcp.run(transport='sse')"
-# Server runs at http://127.0.0.1:8000/sse
+claude mcp add --transport http personal-finance http://localhost:7860/mcp
 ```
 
-For production, use behind a reverse proxy:
+> Prefer pure stdio (offline, no web)? `python -m src` still runs the classic
+> stdio MCP server with all 76 tools.
 
-```nginx
-# nginx.conf
-server {
-    listen 443 ssl;
-    server_name finance-mcp.yourdomain.com;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-```
-
-### 3. Docker Deployment
-
-```dockerfile
-FROM python:3.12-slim
-
-WORKDIR /app
-COPY . .
-
-RUN pip install --no-cache-dir -e .
-
-EXPOSE 8000
-
-CMD ["python", "-c", "from src.server import mcp; mcp.run(transport='sse')"]
-```
+## Run with Docker
 
 ```bash
 docker build -t personal-finance-mcp .
-docker run -p 8000:8000 personal-finance-mcp
+docker run -p 7860:7860 personal-finance-mcp
 ```
 
-### 4. Streamable HTTP (Production)
+The multi-stage `Dockerfile` builds the Next.js site in a Node stage, then copies
+the static export into the Python runtime stage.
 
-For production deployments with better connection handling:
+## Deploy to Hugging Face Spaces (Docker)
 
-```python
-# run_production.py
-from src.server import mcp
+The root `README.md` already contains the required Space frontmatter
+(`sdk: docker`, `app_port: 7860`).
 
-if __name__ == "__main__":
-    mcp.run(
-        transport="sse",
-        host="0.0.0.0",
-        port=8000,
-    )
-```
+1. **Create a write token** at <https://huggingface.co/settings/tokens> (role: *Write*).
+2. **Create a Space** (SDK = *Docker*, blank) at
+   `https://huggingface.co/new-space`, e.g. `your-username/personal-finance-mcp`.
+3. **Push this repo to the Space** (the Space is just a git remote):
 
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MCP_HOST` | `127.0.0.1` | Server bind host |
-| `MCP_PORT` | `8000` | Server port |
-| `LOG_LEVEL` | `INFO` | Logging level |
-
-## Health Check
-
-```bash
-# Verify server is running
-curl http://localhost:8000/sse
-```
-
-## Security Considerations
-
-- **No authentication by default** — add auth for production SSE deployments
-- **No PII stored** — server is stateless, no data persisted
-- **All calculations are deterministic** — no external API calls
-- **Input validation** via Pydantic — prevents injection attacks
-
-## Monitoring
-
-The server logs all tool calls to stderr. Monitor with:
-
-```bash
-# View logs in real-time
-python -c "from src.server import mcp; mcp.run(transport='sse')" 2>&1 | tee server.log
-```
-
-## Scaling
-
-This server is CPU-bound (pure math calculations), not I/O bound:
-- Single instance handles ~1000 calculations/second
-- For high load, run multiple instances behind a load balancer
-- No shared state — horizontally scalable
-
-## Updating
-
-If you installed globally via `pip`:
-```bash
-pip install --upgrade personal-finance-mcp
-```
-*(If you are using `uvx`, updates are pulled dynamically!).*
-
-### 5. Hugging Face Spaces & Public Connectors
-
-You can easily host this MCP server for free on **Hugging Face Spaces**. This allows anyone to connect to your financial calculators remotely without needing to download or install the code locally.
-
-**Step 1: Deploying to Hugging Face**
-1. Create a new **Space** on Hugging Face.
-2. Select **Docker** as the Space SDK and choose the **Blank** template.
-3. Upload the files from this repository directly to the Space.
-4. Since Hugging Face expects web servers to listen on port `7860`, update the `Dockerfile` CMD to bind appropriately:
-   ```dockerfile
-   EXPOSE 7860
-   CMD ["python", "-c", "from src.server import mcp; mcp.run(transport='sse', host='0.0.0.0', port=7860)"]
-   ```
-
-**Step 2: Connecting Claude Desktop to your Remote Server**
-Because Claude Desktop exclusively communicates via stdio (command-line pipes) today, you need an SSE proxy to connect to a cloud URL. You can use standard public NPM proxies to bridge the connection. 
-
-Add this to your `claude_desktop_config.json`:
-```json
-{
-  "mcpServers": {
-    "finance-cloud": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/client-sse",
-        "https://yourhfusername-spacename.hf.space/sse"
-      ]
-    }
-  }
-}
-```
-*Note: Any third-party MCP client that natively supports the HTTP/SSE transport protocol can simply point directly to the URL `https://yourhfusername-spacename.hf.space/sse` to consume the tools automatically!*
-
-### 6. Official Connectors & Registries (Like Figma, GitHub)
-
-You may notice that Claude Desktop has built-in UI toggles for "Official Connectors" like Figma, Google Drive, or GitHub. 
-
-Currently, Anthropic natively builds and maintains those toggles directly inside the Claude application. Third-party developers cannot arbitrarily add a toggle switch to the Claude Desktop UI. However, you can achieve "official" status within the developer ecosystem using these three methods:
-
-**Method A: Submit to the Official MCP GitHub Registry**
-Anthropic maintains the official open-source directory of MCP servers. 
-1. Push your repository to GitHub.
-2. Submit a Pull Request to the [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) repository.
-3. If approved, your financial server will be listed officially for the global community.
-
-**Method B: Publish via Smithery (The MCP Package Manager)**
-[Smithery.ai](https://smithery.ai/) is the most popular registry for MCP servers. 
-1. Sign up on Smithery.ai and link your GitHub repository.
-2. Add a `smithery.yaml` file to your root directory.
-3. Once published, anyone in the world can install your connector natively into their Claude Desktop config via a single command:
    ```bash
-   npx @smithery/cli install personal-finance-mcp --client claude
+   pip install -U "huggingface_hub[cli]"
+   huggingface-cli login                       # paste the write token
+
+   git remote add space https://huggingface.co/spaces/<user>/personal-finance-mcp
+   git push space main
    ```
 
-**Method C: Custom Built-ins (Enterprise)**
-If you are representing a large organization processing proprietary financial datasets and want a dedicated toggle switch inside Claude Desktop natively (like Figma), you must reach out to the Anthropic Partnerships team directly for an enterprise API integration.
+   Or create + push in one step (token inline):
+
+   ```bash
+   huggingface-cli repo create personal-finance-mcp --type space --space_sdk docker
+   git push https://<user>:<HF_TOKEN>@huggingface.co/spaces/<user>/personal-finance-mcp main
+   ```
+
+4. Hugging Face builds the image and starts the container. Once it shows
+   **Running**, your URLs are:
+
+   | URL | Use |
+   |-----|-----|
+   | `https://<user>-personal-finance-mcp.hf.space/` | Website |
+   | `https://<user>-personal-finance-mcp.hf.space/mcp` | **Connector URL** |
+
+5. **Use the connector** anywhere:
+   - Claude Desktop → Settings → Connectors → Add custom connector → paste the `/mcp` URL.
+   - Claude Code → `claude mcp add --transport http personal-finance <url>/mcp`.
+   - Cursor / VS Code → add `{ "url": "<url>/mcp", "transport": "http" }` to `mcp.json`.
+
+### Notes
+
+- The server runs **stateless** (`stateless_http=True`) and disables DNS-rebinding
+  host checks so it works behind the Hugging Face proxy. See `src/server.py`.
+- Live-data tools call public, keyless APIs (AMFI / Frankfurter / stooq); no
+  secrets are required. Outbound network is allowed on Spaces by default.
+- Nothing is persisted — every calculation is independent and reproducible.

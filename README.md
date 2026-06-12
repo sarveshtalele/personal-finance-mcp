@@ -1,3 +1,14 @@
+---
+title: Personal Finance MCP
+emoji: 💰
+colorFrom: green
+colorTo: teal
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # 💰 Personal Finance MCP Server
 
 mcp-name: io.github.sarveshtalele/personal-finance
@@ -14,13 +25,27 @@ mcp-name: io.github.sarveshtalele/personal-finance
 
 ## ✨ What It Does
 
-Connect this server to **Claude Desktop**, **Claude Code**, or any MCP client to get **54 financial calculation tools** with:
+Connect this server to **Claude Desktop**, **Claude Code**, or any MCP client to get **76 financial tools** with:
 
 - 🔢 **Deterministic outputs** — same inputs → same results, always
-- 📖 **Theory-grounded** — every formula traced to core financial concepts
+- 📖 **Theory-grounded** — every formula traced to the NISM Investment Adviser (Level 1) curriculum
 - 📐 **Full formula display** — shows the exact calculation, not just the answer
-- 🇮🇳 **Indian finance context** — ₹ formatting, SIP planning, EMI calculations
-- 🚀 **Zero external APIs** — works fully offline, no LLM dependency for math
+- 🇮🇳 **Indian finance context** — ₹ formatting, PPF/SSY/NSC/EPF, SIP, EMI
+- 🤖 **Story → tools** — describe your situation; `create_financial_plan` routes you to the right calculators
+- 🛰️ **Live market data** — mutual-fund NAVs (AMFI), FX (ECB), index quotes — no API keys
+- 🌐 **Website + connector** — a Next.js site (calculators + live dashboard) and an MCP endpoint, deployable to Hugging Face
+
+### Website & Hugging Face deployment
+
+The unified server (`python -m src.web`) serves everything on one port:
+
+| Path | What |
+|------|------|
+| `/` | The Next.js website (tool catalog, live calculator, market dashboard, setup guide) |
+| `/mcp` | The MCP server over **streamable-HTTP** — use this URL as a connector |
+| `/api/*` | JSON endpoints powering the site (tool catalog, calculators, live data) |
+
+Deploy as a **Docker Space** on Hugging Face (`sdk: docker`, `app_port: 7860`). Your connector URL becomes `https://<user>-<space>.hf.space/mcp`. See [docs/deployment.md](docs/deployment.md).
 
 ---
 

@@ -34,8 +34,10 @@ coverage.xml
 *.log
 server.log
 
-# Docker
-.dockerignore
+# Node / Next.js (website is built inside Docker)
+web/node_modules/
+web/out/
+web/.next/
 
 # Registration Tokens
 .mcpregistry_github_token
