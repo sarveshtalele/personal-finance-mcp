@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.sarveshtalele/personal-finance",
-  "description": "54 robust financial calculators based on deterministic mathematical principles.",
+  "description": "76 deterministic personal-finance tools: time value of money, loans, SIPs, bonds, derivatives, portfolio analytics, Indian small-savings, a meta-advisor and live market data.",
   "repository": {
     "url": "https://github.com/sarveshtalele/personal-finance-mcp",
     "source": "github"
   },
-  "version": "1.0.2",
+  "version": "1.1.0",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "personal-finance-mcp",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "transport": {
         "type": "stdio"
       }

@@ -90,6 +90,22 @@ claude mcp add --transport http personal-finance https://sarveshtalele-personal-
 }
 ```
 
+### Install from PyPI (stdio server)
+
+```bash
+pip install personal-finance-mcp     # or: uvx personal-finance-mcp
+```
+
+Then point Claude Desktop at it:
+
+```json
+{
+  "mcpServers": {
+    "personal-finance": { "command": "uvx", "args": ["personal-finance-mcp"] }
+  }
+}
+```
+
 ### Run locally from source
 
 ```bash

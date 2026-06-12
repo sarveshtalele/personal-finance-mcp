@@ -19,7 +19,7 @@ WORKDIR /app
 
 COPY pyproject.toml README.md ./
 COPY src/ src/
-RUN pip install --no-cache-dir -e .
+RUN pip install --no-cache-dir -e ".[web]"
 
 # Bring in the exported website so the server can serve it at "/"
 COPY --from=web /web/out web/out
