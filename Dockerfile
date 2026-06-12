@@ -3,7 +3,7 @@
 # (MCP over streamable-HTTP at /mcp + JSON API at /api + the static website at /).
 
 # ---------- Stage 1: build the website ----------
-FROM node:20-slim AS web
+FROM node:26-slim AS web
 WORKDIR /web
 COPY web/package.json web/package-lock.json* ./
 RUN npm install --no-audit --no-fund
