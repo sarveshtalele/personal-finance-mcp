@@ -11,7 +11,7 @@ COPY web/ ./
 RUN npm run build          # produces /web/out (output: "export")
 
 # ---------- Stage 2: python runtime ----------
-FROM python:3.12-slim
+FROM python:3.14-slim
 LABEL maintainer="sarveshkishortalele"
 LABEL description="Personal Finance MCP — 76 tools, website + connector"
 
