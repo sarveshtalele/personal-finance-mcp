@@ -36,24 +36,44 @@ jobs:
 
           api = HfApi(token=os.environ["HF_TOKEN"])
           space = os.environ["HF_SPACE"]
+          sha = os.environ.get("GITHUB_SHA", "")[:7]
           api.create_repo(space, repo_type="space", space_sdk="docker", exist_ok=True)
+
+          # Sync the whole repo EXCEPT README.md — the Space needs YAML frontmatter
+          # that we don't want cluttering the GitHub README, so we generate it here.
           api.upload_folder(
               folder_path=".",
               repo_id=space,
               repo_type="space",
-              commit_message=f"Sync from GitHub @ {os.environ.get('GITHUB_SHA','')[:7]}",
+              commit_message=f"Sync from GitHub @ {sha}",
               ignore_patterns=[
-                  "**/.git/**",
-                  ".github/**",
-                  "**/__pycache__/**",
-                  "**/*.pyc",
-                  ".venv/**",
-                  "web/node_modules/**",
-                  "web/out/**",
-                  "web/.next/**",
-                  "**/*.pdf",
-                  "tests/**",
+                  "**/.git/**", ".github/**", "**/__pycache__/**", "**/*.pyc",
+                  ".venv/**", "web/node_modules/**", "web/out/**", "web/.next/**",
+                  "**/*.pdf", "tests/**", "README.md",
               ],
+          )
+
+          # Build the Space README: HF frontmatter + the repo README body.
+          frontmatter = (
+              "---\n"
+              "title: Personal Finance MCP\n"
+              "emoji: 💰\n"
+              "colorFrom: green\n"
+              "colorTo: blue\n"
+              "sdk: docker\n"
+              "app_port: 7860\n"
+              "pinned: false\n"
+              "license: mit\n"
+              "---\n\n"
+          )
+          with open("README.md", encoding="utf-8") as f:
+              body = f.read()
+          api.upload_file(
+              path_or_fileobj=(frontmatter + body).encode("utf-8"),
+              path_in_repo="README.md",
+              repo_id=space,
+              repo_type="space",
+              commit_message=f"Space README @ {sha}",
           )
           print(f"Deployed to https://huggingface.co/spaces/{space}")
           PY
