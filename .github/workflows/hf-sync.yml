@@ -1,0 +1,59 @@
+name: Deploy to Hugging Face Space
+
+# Deploys the repo to the Hugging Face Docker Space on every push to main.
+# Requires a repo secret HF_TOKEN (a Hugging Face *write* token).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: hf-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install huggingface_hub
+        run: pip install -U "huggingface_hub>=0.25"
+
+      - name: Create Space (if needed) and upload
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: sarveshtalele/personal-finance-mcp
+        run: |
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          space = os.environ["HF_SPACE"]
+          api.create_repo(space, repo_type="space", space_sdk="docker", exist_ok=True)
+          api.upload_folder(
+              folder_path=".",
+              repo_id=space,
+              repo_type="space",
+              commit_message=f"Sync from GitHub @ {os.environ.get('GITHUB_SHA','')[:7]}",
+              ignore_patterns=[
+                  "**/.git/**",
+                  ".github/**",
+                  "**/__pycache__/**",
+                  "**/*.pyc",
+                  ".venv/**",
+                  "web/node_modules/**",
+                  "web/out/**",
+                  "web/.next/**",
+                  "**/*.pdf",
+                  "tests/**",
+              ],
+          )
+          print(f"Deployed to https://huggingface.co/spaces/{space}")
+          PY
