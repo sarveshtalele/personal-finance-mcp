@@ -3,12 +3,10 @@ import { useEffect, useState } from "react";
 
 function Code({ children }) {
   const [copied, setCopied] = useState(false);
+  const copy = () => { navigator.clipboard?.writeText(children); setCopied(true); setTimeout(() => setCopied(false), 1400); };
   return (
-    <div className="codeblock" onClick={() => { navigator.clipboard?.writeText(children); setCopied(true); setTimeout(() => setCopied(false), 1200); }}
-      style={{ cursor: "copy" }} title="Click to copy">
-      <span style={{ position: "absolute", top: 10, right: 14, fontSize: 12, color: copied ? "var(--green)" : "var(--muted)" }}>
-        {copied ? "copied ✓" : "click to copy"}
-      </span>
+    <div className="codeblock">
+      <button className="copy" onClick={copy}>{copied ? "copied ✓" : "copy"}</button>
       <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>{children}</pre>
     </div>
   );

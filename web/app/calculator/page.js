@@ -1,172 +1,208 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../lib";
+import { inr, pct, num, label, formatValue, PRIMARY, PRIMARY_SUB } from "../format";
 
-const N = (label, key, def) => ({ label, key, def, type: "number" });
-const SEL = (label, key, def, opts) => ({ label, key, def, type: "select", opts });
+// field: {key, label, type:"slider"|"select", min,max,step,def, unit, opts}
+const fF = (key, label, def, min, max, step, unit) => ({ key, label, def, min, max, step, unit, type: "slider" });
+const fS = (key, label, def, opts) => ({ key, label, def, opts, type: "select" });
 
-const CALCS = [
+const GROUPS = [
   {
-    id: "financial_plan", name: "🤖 Full financial plan",
-    desc: "The advisor — one input, a prioritised plan.",
-    fields: [
-      N("Age", "age", 30), N("Monthly income (₹)", "monthly_income", 100000),
-      N("Monthly expenses (₹)", "monthly_expenses", 55000), N("Monthly EMI (₹)", "monthly_emi", 20000),
-      N("Dependents", "dependents", 1), N("Emergency fund now (₹)", "existing_emergency_fund", 100000),
-      N("Retirement age", "retirement_age", 60), N("Expected return %", "expected_return", 11),
-      N("Inflation %", "inflation", 6),
+    name: "Plan",
+    calcs: [
+      { id: "financial_plan", icon: "🤖", name: "Full financial plan", desc: "Describe your finances — get a prioritised plan.",
+        fields: [
+          fF("age", "Age", 30, 18, 70, 1, "int"),
+          fF("monthly_income", "Monthly income", 100000, 10000, 1000000, 5000, "inr"),
+          fF("monthly_expenses", "Monthly expenses", 55000, 5000, 800000, 5000, "inr"),
+          fF("monthly_emi", "Monthly EMI", 20000, 0, 500000, 2500, "inr"),
+          fF("dependents", "Dependents", 1, 0, 8, 1, "int"),
+          fF("existing_emergency_fund", "Emergency fund today", 100000, 0, 5000000, 25000, "inr"),
+          fF("retirement_age", "Retirement age", 60, 45, 75, 1, "int"),
+          fF("expected_return", "Expected return", 11, 4, 16, 0.5, "pct"),
+        ] },
     ],
   },
   {
-    id: "future_value", name: "⏳ Future value",
-    desc: "Grow a lump sum with compounding.",
-    fields: [
-      N("Present value (₹)", "present_value", 100000), N("Annual rate %", "annual_rate", 8),
-      N("Years", "years", 10),
-      SEL("Compounding", "compounding", "annually", ["annually", "semi_annually", "quarterly", "monthly", "daily", "continuous"]),
+    name: "Grow wealth",
+    calcs: [
+      { id: "sip_returns", icon: "🧺", name: "SIP returns", desc: "Where a monthly SIP lands.",
+        fields: [fF("monthly_investment", "Monthly SIP", 10000, 500, 500000, 500, "inr"), fF("annual_return", "Expected return", 12, 4, 18, 0.5, "pct"), fF("years", "Duration", 15, 1, 40, 1, "yr"), fF("step_up_percentage", "Annual step-up", 0, 0, 20, 1, "pct")] },
+      { id: "sip_needed", icon: "🎯", name: "SIP for a goal", desc: "Monthly SIP to hit a target corpus.",
+        fields: [fF("target_amount", "Goal amount", 10000000, 100000, 100000000, 100000, "inr"), fF("annual_return", "Expected return", 12, 4, 18, 0.5, "pct"), fF("years", "Years to goal", 20, 1, 40, 1, "yr")] },
+      { id: "future_value", icon: "⏳", name: "Future value", desc: "Grow a lump sum with compounding.",
+        fields: [fF("present_value", "Amount today", 100000, 1000, 50000000, 10000, "inr"), fF("annual_rate", "Annual rate", 8, 1, 18, 0.5, "pct"), fF("years", "Duration", 10, 1, 40, 1, "yr"), fS("compounding", "Compounding", "annually", ["annually", "semi_annually", "quarterly", "monthly", "daily", "continuous"])] },
     ],
   },
   {
-    id: "emi", name: "🏦 Loan EMI",
-    desc: "Monthly instalment for a loan.",
-    fields: [N("Principal (₹)", "principal", 5000000), N("Annual rate %", "annual_rate", 8.5), N("Tenure (years)", "tenure_years", 20)],
+    name: "Save (India)",
+    calcs: [
+      { id: "ppf", icon: "🇮🇳", name: "PPF", desc: "Public Provident Fund maturity.",
+        fields: [fF("annual_deposit", "Yearly deposit", 150000, 500, 150000, 500, "inr"), fF("annual_rate", "Interest rate", 7.1, 6, 9, 0.1, "pct"), fF("years", "Years", 15, 15, 50, 1, "yr")] },
+      { id: "epf", icon: "👔", name: "EPF corpus", desc: "Provident-fund corpus at retirement.",
+        fields: [fF("monthly_basic", "Monthly basic pay", 50000, 5000, 500000, 5000, "inr"), fF("annual_rate", "Interest rate", 8.25, 7, 9.5, 0.05, "pct"), fF("years", "Years to retire", 30, 1, 45, 1, "yr"), fF("annual_increment", "Annual increment", 5, 0, 15, 1, "pct")] },
+      { id: "fixed_deposit", icon: "💰", name: "Fixed deposit", desc: "Bank / NBFC FD maturity.",
+        fields: [fF("principal", "Deposit amount", 100000, 1000, 50000000, 10000, "inr"), fF("annual_rate", "Interest rate", 7, 3, 9, 0.1, "pct"), fF("years", "Tenure", 5, 1, 10, 1, "yr"), fS("compounding", "Compounding", "quarterly", ["annually", "half_yearly", "quarterly", "monthly"])] },
+      { id: "nsc", icon: "📜", name: "NSC", desc: "National Savings Certificate.",
+        fields: [fF("principal", "Investment", 100000, 1000, 10000000, 5000, "inr"), fF("annual_rate", "Interest rate", 7.7, 6, 9, 0.1, "pct"), fF("years", "Tenure", 5, 5, 10, 1, "yr")] },
+    ],
   },
   {
-    id: "sip_returns", name: "🧺 SIP returns",
-    desc: "Where a monthly SIP lands.",
-    fields: [N("Monthly investment (₹)", "monthly_investment", 10000), N("Expected return %", "annual_return", 12), N("Years", "years", 15), N("Annual step-up %", "step_up_percentage", 0)],
-  },
-  {
-    id: "sip_needed", name: "🎯 SIP for a goal",
-    desc: "Monthly SIP to hit a target corpus.",
-    fields: [N("Target amount (₹)", "target_amount", 10000000), N("Expected return %", "annual_return", 12), N("Years", "years", 20)],
-  },
-  {
-    id: "ppf", name: "🇮🇳 PPF maturity",
-    desc: "Public Provident Fund growth.",
-    fields: [N("Annual deposit (₹)", "annual_deposit", 150000), N("Rate %", "annual_rate", 7.1), N("Years", "years", 15)],
-  },
-  {
-    id: "fixed_deposit", name: "💰 Fixed deposit",
-    desc: "Bank/NBFC FD maturity.",
-    fields: [N("Principal (₹)", "principal", 100000), N("Rate %", "annual_rate", 7), N("Years", "years", 5),
-      SEL("Compounding", "compounding", "quarterly", ["annually", "half_yearly", "quarterly", "monthly"])],
-  },
-  {
-    id: "epf", name: "👔 EPF corpus",
-    desc: "Provident-fund corpus at retirement.",
-    fields: [N("Monthly basic (₹)", "monthly_basic", 50000), N("Rate %", "annual_rate", 8.25), N("Years", "years", 30), N("Annual increment %", "annual_increment", 5)],
-  },
-  {
-    id: "inflation_impact", name: "📉 Inflation impact",
-    desc: "Tomorrow's cost of today's expense.",
-    fields: [N("Current amount (₹)", "current_amount", 100000), N("Inflation %", "inflation_rate", 6), N("Years", "years", 20)],
-  },
-  {
-    id: "rule_of_72", name: "✌️ Rule of 72",
-    desc: "Years to double your money.",
-    fields: [N("Annual rate %", "annual_rate", 9)],
+    name: "Borrow & protect",
+    calcs: [
+      { id: "emi", icon: "🏦", name: "Loan EMI", desc: "Monthly instalment for a loan.",
+        fields: [fF("principal", "Loan amount", 5000000, 50000, 100000000, 50000, "inr"), fF("annual_rate", "Interest rate", 8.5, 5, 18, 0.1, "pct"), fF("tenure_years", "Tenure", 20, 1, 30, 1, "yr")] },
+      { id: "inflation_impact", icon: "📉", name: "Inflation impact", desc: "Tomorrow's cost of today's expense.",
+        fields: [fF("current_amount", "Cost today", 100000, 1000, 50000000, 10000, "inr"), fF("inflation_rate", "Inflation", 6, 1, 12, 0.5, "pct"), fF("years", "Years ahead", 20, 1, 40, 1, "yr")] },
+      { id: "rule_of_72", icon: "✌️", name: "Rule of 72", desc: "Years to double your money.",
+        fields: [fF("annual_rate", "Annual rate", 9, 1, 20, 0.5, "pct")] },
+    ],
   },
 ];
 
-function fmt(v) {
-  if (typeof v === "number") return Number.isInteger(v) ? v.toLocaleString("en-IN") : v.toLocaleString("en-IN", { maximumFractionDigits: 2 });
-  return String(v);
+const ALL = GROUPS.flatMap((g) => g.calcs);
+
+function liveFmt(unit, v) {
+  if (unit === "inr") return inr(Number(v), { compact: Math.abs(v) >= 100000 });
+  if (unit === "pct") return `${v}%`;
+  if (unit === "yr") return `${v} yr${v == 1 ? "" : "s"}`;
+  return num(Number(v));
 }
 
 export default function Calculator() {
-  const [calc, setCalc] = useState(CALCS[0]);
-  const [vals, setVals] = useState(() => Object.fromEntries(CALCS[0].fields.map((f) => [f.key, f.def])));
+  const [calc, setCalc] = useState(ALL[0]);
+  const [vals, setVals] = useState(() => Object.fromEntries(ALL[0].fields.map((f) => [f.key, f.def])));
   const [result, setResult] = useState(null);
-  const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const timer = useRef(null);
 
-  function pick(c) {
+  const pick = (c) => {
     setCalc(c);
     setVals(Object.fromEntries(c.fields.map((f) => [f.key, f.def])));
     setResult(null); setErr(null);
-  }
+  };
 
-  async function run() {
+  const run = useCallback(async (c, v) => {
     setBusy(true); setErr(null);
     try {
       const params = {};
-      for (const f of calc.fields) params[f.key] = f.type === "number" ? Number(vals[f.key]) : vals[f.key];
-      const r = await api("/api/calc", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ calculator: calc.id, params }),
-      });
+      for (const f of c.fields) params[f.key] = f.type === "slider" ? Number(v[f.key]) : v[f.key];
+      const r = await api("/api/calc", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ calculator: c.id, params }) });
       setResult(r.result || r);
     } catch (e) { setErr(e.message); }
     setBusy(false);
-  }
+  }, []);
+
+  // live, debounced recompute
+  useEffect(() => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => run(calc, vals), 280);
+    return () => clearTimeout(timer.current);
+  }, [calc, vals, run]);
+
+  const primaryKey = result ? (PRIMARY[calc.id] || Object.keys(result).find((k) => typeof result[k] === "number")) : null;
+  const subKey = PRIMARY_SUB[calc.id];
+  const actions = result?.prioritised_actions;
+
+  const minis = useMemo(() => {
+    if (!result) return [];
+    return Object.entries(result).filter(([k, v]) =>
+      typeof v === "number" && k !== primaryKey && k !== subKey &&
+      !["annual_rate", "annual_return", "rate", "step_up"].includes(k)
+    ).slice(0, 6);
+  }, [result, primaryKey, subKey]);
 
   return (
     <div className="container">
       <div className="page-head">
-        <h1>Live calculator</h1>
-        <p>The same deterministic functions your AI calls — runnable right here, in the browser.</p>
+        <div className="kicker">Interactive</div>
+        <h1>Calculator</h1>
+        <p>The exact functions your AI calls — runnable here. Drag a slider; results update live.</p>
       </div>
 
-      <div className="section" style={{ paddingTop: 28 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 28 }}>
-          {CALCS.map((c) => (
-            <button key={c.id} onClick={() => pick(c)}
-              className={"btn " + (c.id === calc.id ? "btn-primary" : "btn-ghost")}
-              style={{ fontSize: 14, padding: "9px 16px" }}>
-              {c.name}
-            </button>
-          ))}
-        </div>
-
-        <div className="calc-wrap">
-          <div className="card">
-            <h3 style={{ marginTop: 0 }}>{calc.name}</h3>
-            <p style={{ color: "var(--muted)", marginTop: 0, fontSize: 14 }}>{calc.desc}</p>
-            {calc.fields.map((f) => (
-              <div className="field" key={f.key}>
-                <label>{f.label}</label>
-                {f.type === "select" ? (
-                  <select value={vals[f.key]} onChange={(e) => setVals({ ...vals, [f.key]: e.target.value })}>
-                    {f.opts.map((o) => <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
-                  </select>
-                ) : (
-                  <input type="number" value={vals[f.key]}
-                    onChange={(e) => setVals({ ...vals, [f.key]: e.target.value })} />
-                )}
+      <div className="section" style={{ paddingTop: 32 }}>
+        <div className="calc-shell">
+          {/* sidebar */}
+          <aside className="calc-nav">
+            {GROUPS.map((g) => (
+              <div key={g.name}>
+                <div className="group-label">{g.name}</div>
+                {g.calcs.map((c) => (
+                  <button key={c.id} className={c.id === calc.id ? "active" : ""} onClick={() => pick(c)}>
+                    <span>{c.icon}</span><span>{c.name}</span>
+                  </button>
+                ))}
               </div>
             ))}
-            <button className="btn btn-primary" style={{ width: "100%", marginTop: 8 }} onClick={run} disabled={busy}>
-              {busy ? "Calculating…" : "Calculate"}
-            </button>
-          </div>
+          </aside>
 
-          <div>
-            {err && <div className="note" style={{ marginBottom: 16 }}>Error: {err}</div>}
-            {!result && !err && <div className="result-box">Results appear here. Pick a calculator, adjust the inputs and hit Calculate.</div>}
-            {result && (
-              <div className="card">
-                {Object.entries(result).map(([k, v]) => {
-                  if (k === "formula") return null;
-                  if (Array.isArray(v)) return (
-                    <div className="field" key={k}>
-                      <label>{k.replace(/_/g, " ")}</label>
-                      <ul style={{ margin: 0, paddingLeft: 18, color: "var(--ink)" }}>
-                        {v.map((x, i) => <li key={i} style={{ fontSize: 14, marginBottom: 4 }}>{typeof x === "object" ? JSON.stringify(x) : String(x)}</li>)}
+          {/* main */}
+          <div className="calc-main">
+            {/* inputs */}
+            <div className="card">
+              <h3 style={{ marginBottom: 4 }}>{calc.icon} {calc.name}</h3>
+              <p className="muted" style={{ fontSize: 14, marginBottom: 22 }}>{calc.desc}</p>
+              {calc.fields.map((f) => (
+                <div className="field" key={f.key}>
+                  <div className="row">
+                    <label>{f.label}</label>
+                    {f.type === "slider" && <span className="val">{liveFmt(f.unit, vals[f.key])}</span>}
+                  </div>
+                  {f.type === "select" ? (
+                    <select value={vals[f.key]} onChange={(e) => setVals({ ...vals, [f.key]: e.target.value })}>
+                      {f.opts.map((o) => <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
+                    </select>
+                  ) : (
+                    <>
+                      <input type="range" min={f.min} max={f.max} step={f.step} value={vals[f.key]}
+                        onChange={(e) => setVals({ ...vals, [f.key]: Number(e.target.value) })} />
+                      <input type="number" min={f.min} max={f.max} step={f.step} value={vals[f.key]}
+                        onChange={(e) => setVals({ ...vals, [f.key]: Number(e.target.value) })} style={{ marginTop: 8 }} />
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* result */}
+            <div className="result-panel">
+              {err && <div className="note" style={{ background: "#fef2f2", borderColor: "#fecaca", color: "var(--danger)" }}>Couldn't calculate: {err}</div>}
+              {!err && result && primaryKey && (
+                <>
+                  <div className="headline">
+                    <div className="cap">{label(primaryKey)}</div>
+                    <div className="big">{formatValue(primaryKey, result[primaryKey])}</div>
+                    {subKey && result[subKey] != null && (
+                      <div className="sub">{label(subKey)}: {formatValue(subKey, result[subKey])}</div>
+                    )}
+                    {calc.id === "financial_plan" && (
+                      <div className="sub">Risk profile: {result.risk_profile} · {result.suggested_equity_pct}% equity</div>
+                    )}
+                  </div>
+
+                  {minis.length > 0 && (
+                    <div className="metrics">
+                      {minis.map(([k, v]) => (
+                        <div className="metric-mini" key={k}><div className="k">{label(k)}</div><div className="v">{formatValue(k, v)}</div></div>
+                      ))}
+                    </div>
+                  )}
+
+                  {Array.isArray(actions) && (
+                    <div className="card" style={{ marginTop: 14, padding: "10px 20px" }}>
+                      <ul className="actions-list">
+                        {actions.map((a, i) => <li key={i}><span className="mark">→</span><span>{a}</span></li>)}
                       </ul>
                     </div>
-                  );
-                  if (typeof v === "object" && v) return null;
-                  return (
-                    <div className="kv" key={k}>
-                      <span className="k">{k.replace(/_/g, " ")}</span>
-                      <span className="v">{fmt(v)}</span>
-                    </div>
-                  );
-                })}
-                {result.formula && <p style={{ color: "var(--muted)", fontSize: 13, marginTop: 14 }}>ƒ {result.formula}</p>}
-              </div>
-            )}
+                  )}
+
+                  {result.formula && <div className="formula">ƒ {result.formula}</div>}
+                </>
+              )}
+              {!err && !result && <div className="headline"><div className="cap">Result</div><div className="big" style={{ opacity: .4 }}>—</div><div className="sub">Adjust the inputs to see your numbers.</div></div>}
+            </div>
           </div>
         </div>
       </div>

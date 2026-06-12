@@ -1,19 +1,27 @@
 """
-Unified HTTP server for Hugging Face (or any host).
+Unified, hardened HTTP server for Hugging Face (or any host).
 
 Serves three things from one ASGI app on a single port:
   /mcp        -> the MCP server over streamable-HTTP (use this URL as a connector)
   /api/*      -> JSON endpoints for the website (tool catalog, calculators, live data)
   /           -> the exported Next.js website (static files)
 
+Security: a transparent ASGI middleware adds security headers (incl. CSP) to every
+response, caps request bodies, and rate-limits the JSON API. The calculator endpoint
+validates and bounds all inputs (the calculators contain loops, so unbounded inputs
+would be a denial-of-service vector).
+
 Run:  python -m src.web         (PORT env var, defaults to 7860 for HF Spaces)
 """
 
 import inspect
+import math
 import os
+import re
+import time
+from collections import deque
 from pathlib import Path
 
-from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -25,7 +33,6 @@ from ..tools import tvm, debt, mutual_funds, india_savings, advisor, marketdata
 
 # --------------------------------------------------------------------------- #
 # Calculator registry — maps a website calculator id to a pure function.
-# Only the numeric kwargs in each request body are forwarded.
 # --------------------------------------------------------------------------- #
 CALCULATORS = {
     "future_value": tvm.future_value,
@@ -44,24 +51,132 @@ CALCULATORS = {
     "financial_plan": advisor.create_financial_plan,
 }
 
+# --------------------------------------------------------------------------- #
+# Security configuration
+# --------------------------------------------------------------------------- #
+MAX_BODY = 16 * 1024          # 16 KB — calculator payloads are tiny
+RATE_LIMIT = 90               # requests ...
+RATE_WINDOW = 10.0            # ... per 10 s per client IP, on /api/*
+ABS_MAX = 1e13                # reject absurd numeric magnitudes
+
+# Cap the inputs that drive loops in the calculators (DoS protection).
+PARAM_CAPS = {
+    "years": 120, "tenure_years": 120, "deposit_years": 120, "maturity_years": 130,
+    "months": 2400, "age": 120, "retirement_age": 120, "life_expectancy": 130,
+    "dependents": 50, "compounding_periods": 365,
+}
+
+CSP = (
+    "default-src 'self'; base-uri 'self'; object-src 'none'; "
+    "img-src 'self' data:; font-src 'self' data:; "
+    "style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; "
+    "connect-src 'self'; "
+    "frame-ancestors 'self' https://huggingface.co https://*.hf.space"
+)
+SEC_HEADERS = [
+    (b"x-content-type-options", b"nosniff"),
+    (b"referrer-policy", b"strict-origin-when-cross-origin"),
+    (b"permissions-policy", b"geolocation=(), microphone=(), camera=()"),
+    (b"content-security-policy", CSP.encode()),
+]
+
+_hits: dict[str, deque] = {}
+
+_SYMBOL_RE = re.compile(r"^[A-Za-z0-9.^=:-]{1,15}$")
+_CCY_RE = re.compile(r"^[A-Za-z, ]{1,40}$")
+
+
+def _client_ip(scope) -> str:
+    for k, v in scope.get("headers", []):
+        if k == b"x-forwarded-for":
+            return v.decode().split(",")[0].strip()
+    client = scope.get("client")
+    return client[0] if client else "unknown"
+
+
+async def _send_json(send, status: int, payload: bytes):
+    await send({"type": "http.response.start", "status": status,
+                "headers": [(b"content-type", b"application/json")] + SEC_HEADERS})
+    await send({"type": "http.response.body", "body": payload})
+
+
+class SecurityMiddleware:
+    """Transparent ASGI middleware: header injection + body cap + rate limit.
+
+    Implemented at the ASGI layer (not BaseHTTPMiddleware) so it never buffers
+    the streaming /mcp (SSE) responses.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+
+        path = scope.get("path", "")
+        if path.startswith("/api"):
+            headers = dict(scope.get("headers", []))
+            cl = headers.get(b"content-length")
+            if cl and cl.isdigit() and int(cl) > MAX_BODY:
+                return await _send_json(send, 413, b'{"error":"payload too large"}')
+
+            ip = _client_ip(scope)
+            now = time.monotonic()
+            q = _hits.setdefault(ip, deque())
+            while q and now - q[0] > RATE_WINDOW:
+                q.popleft()
+            if len(q) >= RATE_LIMIT:
+                return await _send_json(send, 429, b'{"error":"rate limit exceeded, slow down"}')
+            q.append(now)
+
+        async def send_wrapper(message):
+            if message["type"] == "http.response.start":
+                message.setdefault("headers", [])
+                message["headers"].extend(SEC_HEADERS)
+            await send(message)
+
+        await self.app(scope, receive, send_wrapper)
+
 
 def _category(module_name: str) -> str:
     key = module_name.rsplit(".", 1)[-1]
     return {
-        "tvm": "Time Value of Money",
-        "debt": "Debt & Loans",
-        "cashflow": "Cash Flow & Budgeting",
-        "planning": "Financial Planning",
-        "bonds": "Fixed Income",
-        "stocks": "Equity Valuation",
-        "mutual_funds": "Mutual Funds",
-        "portfolio": "Portfolio Analytics",
-        "derivatives": "Derivatives",
-        "india_savings": "Small Savings (India)",
-        "risk_profile": "Risk Profiling",
-        "advisor": "Advisor",
+        "tvm": "Time Value of Money", "debt": "Debt & Loans",
+        "cashflow": "Cash Flow & Budgeting", "planning": "Financial Planning",
+        "bonds": "Fixed Income", "stocks": "Equity Valuation",
+        "mutual_funds": "Mutual Funds", "portfolio": "Portfolio Analytics",
+        "derivatives": "Derivatives", "india_savings": "Small Savings (India)",
+        "risk_profile": "Risk Profiling", "advisor": "Advisor",
         "marketdata": "Live Market Data",
     }.get(key, key.title())
+
+
+def _sanitize_params(params: dict) -> dict:
+    """Validate and bound calculator inputs. Raises ValueError on bad input."""
+    if not isinstance(params, dict) or len(params) > 30:
+        raise ValueError("invalid parameters")
+    clean = {}
+    for k, v in params.items():
+        if not isinstance(k, str) or len(k) > 40:
+            raise ValueError("invalid parameter name")
+        if isinstance(v, bool):
+            clean[k] = v
+        elif isinstance(v, (int, float)):
+            if not math.isfinite(v):
+                raise ValueError(f"'{k}' must be a finite number")
+            if abs(v) > ABS_MAX:
+                raise ValueError(f"'{k}' is out of range")
+            cap = PARAM_CAPS.get(k)
+            if cap is not None and v > cap:
+                raise ValueError(f"'{k}' must be ≤ {cap}")
+            clean[k] = v
+        elif isinstance(v, str):
+            if len(v) > 40:
+                raise ValueError(f"'{k}' is too long")
+            clean[k] = v
+        # silently drop nulls / nested structures
+    return clean
 
 
 # --------------------------------------------------------------------------- #
@@ -81,26 +196,28 @@ async def list_tools(_: Request) -> JSONResponse:
     categories: dict[str, int] = {}
     for t in tools:
         categories[t["category"]] = categories.get(t["category"], 0) + 1
-    return JSONResponse(
-        {"count": len(tools), "categories": categories, "tools": tools}
-    )
+    return JSONResponse({"count": len(tools), "categories": categories, "tools": tools})
 
 
 async def run_calc(request: Request) -> JSONResponse:
-    body = await request.json()
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "invalid JSON"}, status_code=400)
+
     name = body.get("calculator")
     fn = CALCULATORS.get(name)
     if fn is None:
-        return JSONResponse(
-            {"error": f"Unknown calculator '{name}'", "available": list(CALCULATORS)},
-            status_code=400,
-        )
-    params = body.get("params", {})
+        return JSONResponse({"error": f"unknown calculator '{name}'", "available": list(CALCULATORS)}, status_code=400)
+    try:
+        params = _sanitize_params(body.get("params", {}))
+    except ValueError as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
+
     sig = inspect.signature(fn)
     allowed = {k: v for k, v in params.items() if k in sig.parameters}
     try:
-        result = fn(**allowed)
-        return JSONResponse({"calculator": name, "result": result})
+        return JSONResponse({"calculator": name, "result": fn(**allowed)})
     except Exception as e:  # noqa: BLE001
         return JSONResponse({"error": str(e)}, status_code=400)
 
@@ -108,19 +225,27 @@ async def run_calc(request: Request) -> JSONResponse:
 async def api_nav(request: Request) -> JSONResponse:
     code = request.query_params.get("code")
     if code:
+        if not code.isdigit() or len(code) > 9:
+            return JSONResponse({"error": "invalid scheme code"}, status_code=400)
         return JSONResponse(marketdata.get_mf_nav(int(code)))
-    q = request.query_params.get("q", "")
+    q = (request.query_params.get("q") or "").strip()
+    if not q or len(q) > 80:
+        return JSONResponse({"error": "query must be 1–80 characters"}, status_code=400)
     return JSONResponse(marketdata.search_mutual_funds(q))
 
 
 async def api_fx(request: Request) -> JSONResponse:
     base = request.query_params.get("base", "USD")
     symbols = request.query_params.get("symbols", "INR")
+    if not _CCY_RE.match(base) or not _CCY_RE.match(symbols):
+        return JSONResponse({"error": "invalid currency code"}, status_code=400)
     return JSONResponse(marketdata.get_fx_rate(base, symbols))
 
 
 async def api_quote(request: Request) -> JSONResponse:
-    symbol = request.query_params.get("symbol", "^nsei")
+    symbol = request.query_params.get("symbol", "^NSEI")
+    if not _SYMBOL_RE.match(symbol):
+        return JSONResponse({"error": "invalid symbol"}, status_code=400)
     return JSONResponse(marketdata.get_quote(symbol))
 
 
@@ -130,12 +255,16 @@ async def api_quote(request: Request) -> JSONResponse:
 def build_app():
     app = mcp.streamable_http_app()  # Starlette app exposing /mcp + session lifespan
 
+    # Public, read-only JSON API: allow cross-origin GET/POST, no credentials.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["content-type"],
+        allow_credentials=False,
+        max_age=3600,
     )
+    app.add_middleware(SecurityMiddleware)
 
     api_routes = [
         Route("/api/health", health),
@@ -145,15 +274,11 @@ def build_app():
         Route("/api/fx", api_fx),
         Route("/api/quote", api_quote),
     ]
-    # Insert API routes before any static catch-all.
     app.router.routes[:0] = api_routes
 
-    # Serve the exported website if present (mounted last as catch-all).
     static_dir = Path(__file__).resolve().parents[2] / "web" / "out"
     if static_dir.is_dir():
-        app.router.routes.append(
-            Mount("/", app=StaticFiles(directory=str(static_dir), html=True))
-        )
+        app.router.routes.append(Mount("/", app=StaticFiles(directory=str(static_dir), html=True)))
     return app
 
 
