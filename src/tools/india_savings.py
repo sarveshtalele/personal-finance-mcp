@@ -177,41 +177,59 @@ def register(mcp: FastMCP):
         """PPF (Public Provident Fund) maturity value for a fixed yearly deposit.
         Use for 'how much will my PPF grow to', PPF maturity/corpus, tax-free
         long-term government savings. Annual compounding over (default) 15 years."""
-        return format_tool_response("PPF Maturity", ppf_maturity(annual_deposit, annual_rate, years))
+        return format_tool_response(
+            "PPF Maturity", ppf_maturity(annual_deposit, annual_rate, years)
+        )
 
     @mcp.tool(name="calculate_sukanya_samriddhi")
     def calculate_ssy_tool(
-        annual_deposit: float, annual_rate: float = 8.2,
-        deposit_years: int = 15, maturity_years: int = 21,
+        annual_deposit: float,
+        annual_rate: float = 8.2,
+        deposit_years: int = 15,
+        maturity_years: int = 21,
     ) -> str:
         """Sukanya Samriddhi Yojana (SSY) maturity for a girl child.
         Use for daughter education/marriage savings, SSY corpus. Deposits for 15
         years, matures in 21 years, annual compounding."""
         return format_tool_response(
             "Sukanya Samriddhi Maturity",
-            sukanya_samriddhi(annual_deposit, annual_rate, deposit_years, maturity_years),
+            sukanya_samriddhi(
+                annual_deposit, annual_rate, deposit_years, maturity_years
+            ),
         )
 
     @mcp.tool(name="calculate_nsc")
-    def calculate_nsc_tool(principal: float, annual_rate: float = 7.7, years: int = 5) -> str:
+    def calculate_nsc_tool(
+        principal: float, annual_rate: float = 7.7, years: int = 5
+    ) -> str:
         """NSC (National Savings Certificate) maturity. Lump-sum, interest reinvested,
         annual compounding (typically 5-year tenure)."""
-        return format_tool_response("NSC Maturity", nsc_maturity(principal, annual_rate, years))
+        return format_tool_response(
+            "NSC Maturity", nsc_maturity(principal, annual_rate, years)
+        )
 
     @mcp.tool(name="calculate_kvp")
     def calculate_kvp_tool(principal: float, annual_rate: float = 7.5) -> str:
         """KVP (Kisan Vikas Patra) — doubles your money; returns the tenure required
         at the given interest rate. Use for 'how long to double my money in KVP'."""
-        return format_tool_response("KVP Doubling", kvp_maturity(principal, annual_rate))
+        return format_tool_response(
+            "KVP Doubling", kvp_maturity(principal, annual_rate)
+        )
 
     @mcp.tool(name="calculate_scss")
-    def calculate_scss_tool(principal: float, annual_rate: float = 8.2, years: int = 5) -> str:
+    def calculate_scss_tool(
+        principal: float, annual_rate: float = 8.2, years: int = 5
+    ) -> str:
         """SCSS (Senior Citizens Savings Scheme) — quarterly interest income and the
         principal returned at maturity. Use for retiree regular-income planning."""
-        return format_tool_response("SCSS Income", scss_payout(principal, annual_rate, years))
+        return format_tool_response(
+            "SCSS Income", scss_payout(principal, annual_rate, years)
+        )
 
     @mcp.tool(name="calculate_recurring_deposit")
-    def calculate_rd_tool(monthly_deposit: float, annual_rate: float, months: int) -> str:
+    def calculate_rd_tool(
+        monthly_deposit: float, annual_rate: float, months: int
+    ) -> str:
         """Recurring Deposit (RD) maturity for a fixed monthly deposit, quarterly
         compounding. Use for 'monthly bank RD maturity / interest'."""
         return format_tool_response(
@@ -221,23 +239,38 @@ def register(mcp: FastMCP):
 
     @mcp.tool(name="calculate_fixed_deposit")
     def calculate_fd_tool(
-        principal: float, annual_rate: float, years: float, compounding: str = "quarterly"
+        principal: float,
+        annual_rate: float,
+        years: float,
+        compounding: str = "quarterly",
     ) -> str:
         """Fixed Deposit (FD) maturity and effective yield. compounding:
         annually | half_yearly | quarterly | monthly. Use for bank/NBFC FD maturity."""
         return format_tool_response(
-            "Fixed Deposit Maturity", fixed_deposit(principal, annual_rate, years, compounding)
+            "Fixed Deposit Maturity",
+            fixed_deposit(principal, annual_rate, years, compounding),
         )
 
     @mcp.tool(name="calculate_epf")
     def calculate_epf_tool(
-        monthly_basic: float, annual_rate: float = 8.25, years: float = 30,
-        employee_pct: float = 12.0, employer_pct: float = 3.67, annual_increment: float = 5.0,
+        monthly_basic: float,
+        annual_rate: float = 8.25,
+        years: float = 30,
+        employee_pct: float = 12.0,
+        employer_pct: float = 3.67,
+        annual_increment: float = 5.0,
     ) -> str:
         """EPF (Employees' Provident Fund) retirement corpus with salary growth.
         Use for 'how big will my EPF/PF be at retirement', employer+employee
         contributions compounding monthly."""
         return format_tool_response(
             "EPF Retirement Corpus",
-            epf_corpus(monthly_basic, annual_rate, years, employee_pct, employer_pct, annual_increment),
+            epf_corpus(
+                monthly_basic,
+                annual_rate,
+                years,
+                employee_pct,
+                employer_pct,
+                annual_increment,
+            ),
         )

@@ -4,10 +4,18 @@ cash flow, risk profiling, advisor)."""
 import math
 
 from src.tools.derivatives import (
-    futures_fair_value, option_payoff, black_scholes, beta_hedge, put_call_parity,
+    futures_fair_value,
+    option_payoff,
+    black_scholes,
+    beta_hedge,
+    put_call_parity,
 )
 from src.tools.india_savings import (
-    ppf_maturity, nsc_maturity, fixed_deposit, kvp_maturity, recurring_deposit,
+    ppf_maturity,
+    nsc_maturity,
+    fixed_deposit,
+    kvp_maturity,
+    recurring_deposit,
 )
 from src.tools.cashflow import cash_flow_statement, debt_to_income, contingency_fund
 from src.tools.risk_profile import risk_profile_score
@@ -43,7 +51,7 @@ class TestDerivatives:
 class TestIndiaSavings:
     def test_nsc_compounding(self):
         r = nsc_maturity(100000, 7.7, 5)
-        assert abs(r["maturity_value"] - 100000 * 1.077 ** 5) < 0.01
+        assert abs(r["maturity_value"] - 100000 * 1.077**5) < 0.01
 
     def test_ppf_positive_growth(self):
         r = ppf_maturity(150000, 7.1, 15)

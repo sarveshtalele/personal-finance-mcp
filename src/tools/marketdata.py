@@ -22,7 +22,9 @@ def search_mutual_funds(query: str, limit: int = 10) -> dict:
     try:
         r = httpx.get(
             "https://api.mfapi.in/mf/search",
-            params={"q": query}, timeout=_TIMEOUT, headers=_UA,
+            params={"q": query},
+            timeout=_TIMEOUT,
+            headers=_UA,
         )
         r.raise_for_status()
         data = r.json()[:limit]
@@ -41,7 +43,9 @@ def search_mutual_funds(query: str, limit: int = 10) -> dict:
 def get_mf_nav(scheme_code: int) -> dict:
     """Latest NAV for an AMFI scheme code (use search_mutual_funds to find the code)."""
     try:
-        r = httpx.get(f"https://api.mfapi.in/mf/{scheme_code}", timeout=_TIMEOUT, headers=_UA)
+        r = httpx.get(
+            f"https://api.mfapi.in/mf/{scheme_code}", timeout=_TIMEOUT, headers=_UA
+        )
         r.raise_for_status()
         j = r.json()
         meta = j.get("meta", {})
@@ -64,11 +68,17 @@ def get_fx_rate(base: str = "USD", symbols: str = "INR") -> dict:
         r = httpx.get(
             "https://api.frankfurter.dev/v1/latest",
             params={"base": base.upper(), "symbols": symbols.upper()},
-            timeout=_TIMEOUT, headers=_UA, follow_redirects=True,
+            timeout=_TIMEOUT,
+            headers=_UA,
+            follow_redirects=True,
         )
         r.raise_for_status()
         j = r.json()
-        return {"base": j.get("base"), "date": j.get("date"), "rates": j.get("rates", {})}
+        return {
+            "base": j.get("base"),
+            "date": j.get("date"),
+            "rates": j.get("rates", {}),
+        }
     except Exception as e:  # noqa: BLE001
         return {"error": f"FX fetch failed: {e}"}
 
@@ -81,7 +91,9 @@ def get_quote(symbol: str) -> dict:
         r = httpx.get(
             f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}",
             params={"interval": "1d", "range": "1d"},
-            timeout=_TIMEOUT, headers=_UA, follow_redirects=True,
+            timeout=_TIMEOUT,
+            headers=_UA,
+            follow_redirects=True,
         )
         r.raise_for_status()
         result = (r.json().get("chart", {}).get("result") or [None])[0]
@@ -117,7 +129,9 @@ def register(mcp: FastMCP):
         """Search Indian mutual-fund schemes by name (AMFI data) and get their scheme
         codes. Use when a user names a fund ('Parag Parikh Flexi Cap') and you need
         its code before fetching the live NAV."""
-        return format_tool_response("Mutual Fund Search", search_mutual_funds(query, limit))
+        return format_tool_response(
+            "Mutual Fund Search", search_mutual_funds(query, limit)
+        )
 
     @mcp.tool(name="get_mutual_fund_nav")
     def get_mf_nav_tool(scheme_code: int) -> str:

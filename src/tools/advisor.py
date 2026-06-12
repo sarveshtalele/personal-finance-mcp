@@ -65,8 +65,11 @@ def create_financial_plan(
 
     # 3. Contingency fund ---------------------------------------------------
     ef = emergency_fund_calculator(
-        monthly_expenses, monthly_emi, dependents,
-        "stable", existing_emergency_fund,
+        monthly_expenses,
+        monthly_emi,
+        dependents,
+        "stable",
+        existing_emergency_fund,
     )
     plan["emergency_fund_target"] = ef["recommended_fund"]
     plan["emergency_fund_gap"] = ef["gap"]
@@ -89,9 +92,12 @@ def create_financial_plan(
     # 5. Risk profile -------------------------------------------------------
     horizon = max(retirement_age - age, 1)
     rp = risk_profile_score(
-        age=age, horizon_years=horizon,
-        income_stability=4, investment_knowledge=3,
-        loss_reaction=3, dependents=dependents,
+        age=age,
+        horizon_years=horizon,
+        income_stability=4,
+        investment_knowledge=3,
+        loss_reaction=3,
+        dependents=dependents,
     )
     plan["risk_profile"] = rp["risk_profile"]
     plan["suggested_equity_pct"] = rp["suggested_equity_pct"]
@@ -110,7 +116,9 @@ def create_financial_plan(
         )
     else:
         corpus_needed = annual_expense_at_retirement * years_in_retirement
-    fv_current = current_retirement_corpus * (1 + expected_return / 100) ** years_to_retire
+    fv_current = (
+        current_retirement_corpus * (1 + expected_return / 100) ** years_to_retire
+    )
     gap = max(corpus_needed - fv_current, 0)
     plan["retirement_corpus_needed"] = round(corpus_needed, 2)
     plan["retirement_corpus_gap"] = round(gap, 2)
@@ -124,8 +132,12 @@ def create_financial_plan(
             f"{rp['suggested_equity_pct']}% equity."
         )
 
-    plan["prioritised_actions"] = actions or ["You are on track across the basics — review annually."]
-    plan["planning_order"] = "Evaluate → Protect → Reduce debt → Profile risk → Invest for goals"
+    plan["prioritised_actions"] = actions or [
+        "You are on track across the basics — review annually."
+    ]
+    plan["planning_order"] = (
+        "Evaluate → Protect → Reduce debt → Profile risk → Invest for goals"
+    )
     return plan
 
 
@@ -159,12 +171,16 @@ def register(mcp: FastMCP):
         Call this to bridge a free-form story to concrete numbers, then drill into
         specific calculators (SIP, retirement, loans) for detail."""
         result = create_financial_plan(
-            age=age, monthly_income=monthly_income, monthly_expenses=monthly_expenses,
-            monthly_emi=monthly_emi, dependents=dependents,
+            age=age,
+            monthly_income=monthly_income,
+            monthly_expenses=monthly_expenses,
+            monthly_emi=monthly_emi,
+            dependents=dependents,
             existing_emergency_fund=existing_emergency_fund,
             retirement_age=retirement_age,
             current_retirement_corpus=current_retirement_corpus,
-            expected_return=expected_return, inflation=inflation,
+            expected_return=expected_return,
+            inflation=inflation,
             life_expectancy=life_expectancy,
         )
         return format_tool_response("Your Financial Plan", result)

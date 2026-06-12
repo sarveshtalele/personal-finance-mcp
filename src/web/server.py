@@ -54,16 +54,23 @@ CALCULATORS = {
 # --------------------------------------------------------------------------- #
 # Security configuration
 # --------------------------------------------------------------------------- #
-MAX_BODY = 16 * 1024          # 16 KB — calculator payloads are tiny
-RATE_LIMIT = 90               # requests ...
-RATE_WINDOW = 10.0            # ... per 10 s per client IP, on /api/*
-ABS_MAX = 1e13                # reject absurd numeric magnitudes
+MAX_BODY = 16 * 1024  # 16 KB — calculator payloads are tiny
+RATE_LIMIT = 90  # requests ...
+RATE_WINDOW = 10.0  # ... per 10 s per client IP, on /api/*
+ABS_MAX = 1e13  # reject absurd numeric magnitudes
 
 # Cap the inputs that drive loops in the calculators (DoS protection).
 PARAM_CAPS = {
-    "years": 120, "tenure_years": 120, "deposit_years": 120, "maturity_years": 130,
-    "months": 2400, "age": 120, "retirement_age": 120, "life_expectancy": 130,
-    "dependents": 50, "compounding_periods": 365,
+    "years": 120,
+    "tenure_years": 120,
+    "deposit_years": 120,
+    "maturity_years": 130,
+    "months": 2400,
+    "age": 120,
+    "retirement_age": 120,
+    "life_expectancy": 130,
+    "dependents": 50,
+    "compounding_periods": 365,
 }
 
 CSP = (
@@ -77,10 +84,26 @@ SEC_HEADERS = [
     (b"x-content-type-options", b"nosniff"),
     (b"referrer-policy", b"strict-origin-when-cross-origin"),
     (b"permissions-policy", b"geolocation=(), microphone=(), camera=()"),
+    (b"strict-transport-security", b"max-age=63072000; includeSubDomains"),
+    (b"cross-origin-opener-policy", b"same-origin"),
     (b"content-security-policy", CSP.encode()),
 ]
 
+# Per-IP sliding-window counters. Pruned periodically so the dict cannot grow
+# without bound (a memory-exhaustion vector under spoofed/rotating IPs).
 _hits: dict[str, deque] = {}
+_MAX_TRACKED_IPS = 20_000
+_prune_counter = 0
+
+
+def _prune(now: float) -> None:
+    stale = [ip for ip, q in _hits.items() if not q or now - q[-1] > RATE_WINDOW]
+    for ip in stale:
+        _hits.pop(ip, None)
+    # Hard cap as a backstop against a flood of distinct IPs in one window.
+    if len(_hits) > _MAX_TRACKED_IPS:
+        _hits.clear()
+
 
 _SYMBOL_RE = re.compile(r"^[A-Za-z0-9.^=:-]{1,15}$")
 _CCY_RE = re.compile(r"^[A-Za-z, ]{1,40}$")
@@ -95,8 +118,13 @@ def _client_ip(scope) -> str:
 
 
 async def _send_json(send, status: int, payload: bytes):
-    await send({"type": "http.response.start", "status": status,
-                "headers": [(b"content-type", b"application/json")] + SEC_HEADERS})
+    await send(
+        {
+            "type": "http.response.start",
+            "status": status,
+            "headers": [(b"content-type", b"application/json")] + SEC_HEADERS,
+        }
+    )
     await send({"type": "http.response.body", "body": payload})
 
 
@@ -121,13 +149,19 @@ class SecurityMiddleware:
             if cl and cl.isdigit() and int(cl) > MAX_BODY:
                 return await _send_json(send, 413, b'{"error":"payload too large"}')
 
+            global _prune_counter
             ip = _client_ip(scope)
             now = time.monotonic()
+            _prune_counter += 1
+            if _prune_counter % 500 == 0:
+                _prune(now)
             q = _hits.setdefault(ip, deque())
             while q and now - q[0] > RATE_WINDOW:
                 q.popleft()
             if len(q) >= RATE_LIMIT:
-                return await _send_json(send, 429, b'{"error":"rate limit exceeded, slow down"}')
+                return await _send_json(
+                    send, 429, b'{"error":"rate limit exceeded, slow down"}'
+                )
             q.append(now)
 
         async def send_wrapper(message):
@@ -142,12 +176,18 @@ class SecurityMiddleware:
 def _category(module_name: str) -> str:
     key = module_name.rsplit(".", 1)[-1]
     return {
-        "tvm": "Time Value of Money", "debt": "Debt & Loans",
-        "cashflow": "Cash Flow & Budgeting", "planning": "Financial Planning",
-        "bonds": "Fixed Income", "stocks": "Equity Valuation",
-        "mutual_funds": "Mutual Funds", "portfolio": "Portfolio Analytics",
-        "derivatives": "Derivatives", "india_savings": "Small Savings (India)",
-        "risk_profile": "Risk Profiling", "advisor": "Advisor",
+        "tvm": "Time Value of Money",
+        "debt": "Debt & Loans",
+        "cashflow": "Cash Flow & Budgeting",
+        "planning": "Financial Planning",
+        "bonds": "Fixed Income",
+        "stocks": "Equity Valuation",
+        "mutual_funds": "Mutual Funds",
+        "portfolio": "Portfolio Analytics",
+        "derivatives": "Derivatives",
+        "india_savings": "Small Savings (India)",
+        "risk_profile": "Risk Profiling",
+        "advisor": "Advisor",
         "marketdata": "Live Market Data",
     }.get(key, key.title())
 
@@ -208,7 +248,10 @@ async def run_calc(request: Request) -> JSONResponse:
     name = body.get("calculator")
     fn = CALCULATORS.get(name)
     if fn is None:
-        return JSONResponse({"error": f"unknown calculator '{name}'", "available": list(CALCULATORS)}, status_code=400)
+        return JSONResponse(
+            {"error": f"unknown calculator '{name}'", "available": list(CALCULATORS)},
+            status_code=400,
+        )
     try:
         params = _sanitize_params(body.get("params", {}))
     except ValueError as e:
@@ -218,8 +261,15 @@ async def run_calc(request: Request) -> JSONResponse:
     allowed = {k: v for k, v in params.items() if k in sig.parameters}
     try:
         return JSONResponse({"calculator": name, "result": fn(**allowed)})
-    except Exception as e:  # noqa: BLE001
-        return JSONResponse({"error": str(e)}, status_code=400)
+    except (ValueError, ZeroDivisionError, KeyError, TypeError) as e:
+        # Expected domain errors — safe, actionable message.
+        return JSONResponse({"error": f"invalid inputs: {e}"}, status_code=400)
+    except Exception:  # noqa: BLE001
+        # Never leak internals/stack traces to the client.
+        import logging
+
+        logging.getLogger("personal-finance").exception("calc failed: %s", name)
+        return JSONResponse({"error": "calculation failed"}, status_code=400)
 
 
 async def api_nav(request: Request) -> JSONResponse:
@@ -278,7 +328,9 @@ def build_app():
 
     static_dir = Path(__file__).resolve().parents[2] / "web" / "out"
     if static_dir.is_dir():
-        app.router.routes.append(Mount("/", app=StaticFiles(directory=str(static_dir), html=True)))
+        app.router.routes.append(
+            Mount("/", app=StaticFiles(directory=str(static_dir), html=True))
+        )
     return app
 
 

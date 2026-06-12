@@ -59,7 +59,9 @@ def debt_to_income(monthly_emi_total: float, monthly_income: float) -> dict:
         "monthly_income": monthly_income,
         "verdict": verdict,
         "max_prudent_emi": round(monthly_income * 0.40, 2),
-        "additional_emi_capacity": round(max(monthly_income * 0.40 - monthly_emi_total, 0), 2),
+        "additional_emi_capacity": round(
+            max(monthly_income * 0.40 - monthly_emi_total, 0), 2
+        ),
         "formula": "DTI = Total EMI / Monthly Income; prudent cap ≈ 40%",
     }
 

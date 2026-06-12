@@ -9,19 +9,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install ruff pytest pytest-cov
-        pip install -e .
+        pip install -e ".[web,dev]"
 
     - name: Lint with ruff
       run: |
@@ -29,9 +31,13 @@ jobs:
         ruff format --check .
 
     - name: Test with pytest
-      run: |
-        pytest tests/ --cov=src --cov-report=xml
+      run: pytest tests/ --cov=src --cov-report=xml
 
     - name: Verify tools registration
       run: |
-        python -c "from src.server import mcp; assert len(mcp._tool_manager._tools) == 54"
+        python -c "from src.server import mcp; n=len(mcp._tool_manager._tools); assert n == 76, n"
+
+    - name: Build package
+      run: |
+        pip install build
+        python -m build

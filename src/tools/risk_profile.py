@@ -22,7 +22,7 @@ def risk_profile_score(
       loss_reaction:       1 (sell in panic) .. 5 (buy more)
     """
     # Capacity (ability to take risk)
-    age_score = max(0, min(100, (60 - age) / 40 * 100))      # younger -> higher
+    age_score = max(0, min(100, (60 - age) / 40 * 100))  # younger -> higher
     horizon_score = max(0, min(100, horizon_years / 20 * 100))
     stability_score = (income_stability - 1) / 4 * 100
     dependents_score = max(0, 100 - dependents * 20)
@@ -88,7 +88,11 @@ def register(mcp: FastMCP):
         return format_tool_response(
             "Risk Profile Assessment",
             risk_profile_score(
-                age, horizon_years, income_stability,
-                investment_knowledge, loss_reaction, dependents,
+                age,
+                horizon_years,
+                income_stability,
+                investment_knowledge,
+                loss_reaction,
+                dependents,
             ),
         )

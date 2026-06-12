@@ -71,7 +71,9 @@ def option_payoff(
     if position == "long":
         profit = intrinsic - premium
         max_loss = premium
-        max_profit = "Unlimited" if option_type == "call" else round(strike - premium, 2)
+        max_profit = (
+            "Unlimited" if option_type == "call" else round(strike - premium, 2)
+        )
     else:  # short / writer
         profit = premium - intrinsic
         max_profit = premium
@@ -86,8 +88,8 @@ def option_payoff(
         "breakeven_price": round(breakeven, 2),
         "max_profit": max_profit,
         "max_loss": max_loss,
-        "formula": f"{'Call' if option_type=='call' else 'Put'} intrinsic = max("
-        + (f"S-K" if option_type == "call" else "K-S")
+        "formula": f"{'Call' if option_type == 'call' else 'Put'} intrinsic = max("
+        + ("S-K" if option_type == "call" else "K-S")
         + ", 0)",
     }
 
@@ -135,7 +137,9 @@ def black_scholes(
     if years <= 0 or sigma <= 0:
         return {"error": "Time to expiry and volatility must be positive."}
 
-    d1 = (math.log(spot / strike) + (r + sigma**2 / 2) * years) / (sigma * math.sqrt(years))
+    d1 = (math.log(spot / strike) + (r + sigma**2 / 2) * years) / (
+        sigma * math.sqrt(years)
+    )
     d2 = d1 - sigma * math.sqrt(years)
 
     if option_type.lower() == "call":
@@ -197,7 +201,10 @@ def register(mcp: FastMCP):
         carry, contango/backwardation, or arbitrage-free pricing of index/stock futures.
         F = Spot × e^((r-q)×t). Set dividend_yield for stocks/indices."""
         result = futures_fair_value(
-            spot_price, annual_rate, years, dividend_yield,
+            spot_price,
+            annual_rate,
+            years,
+            dividend_yield,
             continuous=(compounding == "continuous"),
         )
         return format_tool_response("Futures Fair Value (Cost of Carry)", result)
@@ -246,7 +253,9 @@ def register(mcp: FastMCP):
         """Theoretical European option price (Black-Scholes) and delta.
         Use for 'what is a fair option premium', option valuation, implied pricing.
         volatility is annualised in percent (e.g. 20 for 20%)."""
-        result = black_scholes(spot, strike, annual_rate, volatility, years, option_type)
+        result = black_scholes(
+            spot, strike, annual_rate, volatility, years, option_type
+        )
         return format_tool_response("Black-Scholes Option Price", result)
 
     @mcp.tool(name="calculate_futures_hedge")
