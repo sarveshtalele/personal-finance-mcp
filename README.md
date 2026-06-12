@@ -205,6 +205,14 @@ local, Docker, and Hugging Face — are in [docs/deployment.md](docs/deployment.
 
 ---
 
+## Documentation
+
+- **[docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md)** — concepts (MCP, transports, semantic
+  routing), full architecture with diagrams, end-to-end request flows, the security
+  model, **hosting it yourself / on a portfolio site**, and a production-grade roadmap.
+- [docs/deployment.md](docs/deployment.md) — local, Docker, and Hugging Face deployment.
+- [docs/Architecture.md](docs/Architecture.md) · [docs/testing.md](docs/testing.md) · [docs/setup.md](docs/setup.md)
+
 ## Contributing
 
 Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) and the
