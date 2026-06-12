@@ -1,5 +1,5 @@
 """
-Derivatives Calculations (NISM Level 1, Chapter 10: Understanding Derivatives)
+Derivatives Calculations
 
 Core formulas:
   Futures fair value (cost-of-carry):

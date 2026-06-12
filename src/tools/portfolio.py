@@ -343,7 +343,7 @@ def asset_allocation_suggestion(
             "horizon_adjustment": horizon_adj,
             "final_equity": equity_pct,
         },
-        "reference": "Core Financial Principles",
+        "reference": "Modern Portfolio Theory",
     }
 
 
@@ -560,5 +560,5 @@ def register(mcp: FastMCP):
             output += f"      Target:  ₹{trade['target_value']:,.2f} ({trade['target_pct']}%)\n"
             output += f"      Action:  {trade['action']} ₹{trade['amount']:,.2f}\n\n"
 
-        output += "  Reference: Core Financial Principles\n"
+        output += "  Reference: Modern Portfolio Theory\n"
         return output

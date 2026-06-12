@@ -1,6 +1,5 @@
 """
 Personal Finance MCP Server
-Based on Core Financial Principles
 
 A stateless MCP server providing deterministic personal finance calculations
 for financial planning, investment analysis, and portfolio management.
@@ -31,8 +30,8 @@ from .tools import (
 mcp = FastMCP(
     "Personal Finance Advisor",
     instructions=(
-        "Deterministic personal finance toolkit based on the NISM Investment Adviser "
-        "(Level 1) curriculum. Covers Time Value of Money, cash-flow & budgeting, debt "
+        "Deterministic personal finance toolkit grounded in core financial-planning "
+        "principles. Covers Time Value of Money, cash-flow & budgeting, debt "
         "management, Indian small-savings (PPF/SSY/NSC/KVP/SCSS/RD/FD/EPF), goal & "
         "retirement planning, stock/bond valuation, derivatives, mutual funds, portfolio "
         "analytics, risk profiling, and live market data (mutual-fund NAVs, FX, quotes).\n\n"

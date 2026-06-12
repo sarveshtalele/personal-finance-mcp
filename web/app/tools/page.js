@@ -29,7 +29,7 @@ export default function ToolsPage() {
       <div className="page-head">
         <div className="kicker">Catalog</div>
         <h1>{data ? `${data.count} financial tools` : "Tools"}</h1>
-        <p>Every tool is a deterministic calculator grounded in the NISM IA Level 1 syllabus. Filter by category or search by what it does.</p>
+        <p>Every tool is a deterministic calculator grounded in established financial mathematics. Filter by category or search by what it does.</p>
       </div>
 
       <div className="section" style={{ paddingTop: 28 }}>

@@ -64,7 +64,7 @@
 - Claude memory can optionally store user context between sessions
 
 ### 2. Deterministic
-- All calculations use exact formulas from MVP textbook
+- All calculations use exact, standard financial formulas
 - No randomness, no AI inference for numerical outputs
 - Same inputs always produce same outputs
 - Uses Python `float` with controlled rounding (2 decimal places for currency)
@@ -164,7 +164,7 @@ personal-finance-mcp/
 ### Tool Schema
 Each tool is defined with:
 - `name`: snake_case identifier
-- `description`: What it calculates + which MVP chapter it's from
+- `description`: What it calculates + the concept it implements
 - `inputSchema`: JSON Schema (generated from Pydantic)
 - Returns: Formatted text with calculations, formulas used, and advisory notes
 
@@ -191,5 +191,5 @@ Advisory Note:
   The power of compounding adds ₹1,10,038.69
   beyond simple interest (₹1,20,000).
 
-Reference: MVP IAA Level 1, Chapter 2 - Time Value of Money
+Reference: Standard Time Value of Money formulas
 ```

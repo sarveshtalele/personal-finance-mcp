@@ -1,5 +1,5 @@
 """
-Risk Profiling & Suitability (NISM Level 1, Ch 15: Portfolio Construction Process)
+Risk Profiling & Suitability
 
 Bridges a client's risk *tolerance* (willingness) and risk *capacity* (ability)
 into a profile and a suggested equity/debt split — the suitability step that must

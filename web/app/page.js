@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Reveal from "./Reveal";
+import ChatDemo from "./ChatDemo";
+import ClientMockups from "./ClientMockups";
 
 const FEATURES = [
   { icon: "🤖", title: "Understands your story", body: "Describe your situation in plain words. The advisor maps it to the right calculators and chains them — you never name a tool." },
   { icon: "🧮", title: "76 deterministic tools", body: "Time value of money, loans, SIPs, bonds, derivatives, portfolio analytics and Indian small-savings. Exact maths — same inputs, same answer, every time." },
-  { icon: "🇮🇳", title: "Grounded in NISM theory", body: "Every formula traces to the NISM Investment Adviser (Level 1) curriculum: PPF, SSY, NSC, EMI, CAPM, bond duration and more." },
+  { icon: "🇮🇳", title: "Grounded in financial theory", body: "Every formula traces to established financial mathematics: PPF, SSY, NSC, EMI, CAPM, bond duration and more." },
   { icon: "🛰️", title: "Live market data", body: "Real mutual-fund NAVs (AMFI), FX rates (ECB) and equity quotes (Yahoo) — fetched live, no API keys, nothing to configure." },
   { icon: "🔌", title: "Works everywhere", body: "One connector URL plugs into Claude Desktop, Claude Code, Cursor, or any MCP-compatible client. Add it in under a minute." },
   { icon: "🔒", title: "Stateless & private", body: "Pure calculations behind hardened, rate-limited APIs. Nothing about you is stored — every call is independent and reproducible." },
@@ -42,19 +44,7 @@ export default function Home() {
           <div className="trust">No API keys · Free · Open source · Works in Claude Desktop, Claude Code & IDEs</div>
 
           <Reveal className="preview">
-            <div className="preview-card">
-              <div className="preview-bar"><i /><i /><i /></div>
-              <div className="preview-body">
-                <div className="chat-q">I'm 30, earn ₹1L/month, spend ₹55k, have a ₹20k EMI. Can I retire at 60?</div>
-                <div className="chat-a">
-                  → calls <span className="tool">create_financial_plan</span> → chains{" "}
-                  <span className="tool">cash_flow</span> · <span className="tool">emergency_fund</span> ·{" "}
-                  <span className="tool">debt_to_income</span> · <span className="tool">retirement_gap</span>
-                  <br /><br />
-                  <strong style={{ color: "var(--ink)" }}>Monthly surplus ₹25,000 · Save ₹18,400/mo for retirement · Build a ₹3.3L emergency fund first.</strong>
-                </div>
-              </div>
-            </div>
+            <ChatDemo />
           </Reveal>
         </div>
       </section>
@@ -104,6 +94,17 @@ export default function Home() {
       </section>
 
       <section className="section">
+        <div className="container">
+          <div className="section-head">
+            <div className="kicker">Works wherever you do</div>
+            <h2>One connector, every client</h2>
+            <p>The same tools and answers in Claude Desktop, Claude Code, and your IDE.</p>
+          </div>
+          <Reveal><ClientMockups /></Reveal>
+        </div>
+      </section>
+
+      <section className="band section">
         <div className="container">
           <div className="grid grid-2" style={{ alignItems: "center", gap: 48 }}>
             <Reveal>

@@ -38,22 +38,22 @@ pytest tests/ --cov=src --cov-report=term-missing
 
 ### Unit Tests (Calculator Layer)
 Each calculator module has its own test file. Tests verify:
-- **Correctness**: Output matches hand-calculated/textbook values
+- **Correctness**: Output matches hand-calculated reference values
 - **Edge cases**: Zero rates, negative values, boundary conditions
 - **Error handling**: Invalid inputs (growth > return, zero denominators)
 - **Consistency**: Inverse operations produce original values
 
 ### Examples of Verified Calculations
 
-| Test | Input | Expected | Source |
+| Test | Input | Expected | Method |
 |------|-------|----------|--------|
-| FV annual | PV=1L, r=10%, t=5y | ₹1,61,051 | MVP Ch 2 |
-| FV monthly | PV=1L, r=12%, t=10y | ₹3,30,038.69 | MVP Ch 2 |
-| EMI | P=50L, r=8.5%, t=20y | ₹43,391.16 | MVP Ch 4 |
-| Bond price | FV=1000, c=8%, YTM=10%, t=5y | ₹922.78 | MVP Ch 9 |
-| CAPM | Rf=6%, β=1.2, Rm=15% | 16.8% | MVP Ch 14 |
-| Sharpe | Rp=15%, Rf=6%, σ=8% | 1.125 | MVP Ch 16 |
-| DDM | D0=5, g=8%, r=15% | ₹77.14 | MVP Ch 8 |
+| FV annual | PV=1L, r=10%, t=5y | ₹1,61,051 | Compound interest |
+| FV monthly | PV=1L, r=12%, t=10y | ₹3,30,038.69 | Compound interest |
+| EMI | P=50L, r=8.5%, t=20y | ₹43,391.16 | Amortized loan |
+| Bond price | FV=1000, c=8%, YTM=10%, t=5y | ₹922.78 | DCF pricing |
+| CAPM | Rf=6%, β=1.2, Rm=15% | 16.8% | CAPM |
+| Sharpe | Rp=15%, Rf=6%, σ=8% | 1.125 | Sharpe ratio |
+| DDM | D0=5, g=8%, r=15% | ₹77.14 | Gordon growth |
 
 ## Adding New Tests
 

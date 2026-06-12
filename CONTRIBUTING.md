@@ -36,7 +36,7 @@ wrappers, so the same function powers the MCP server, the web API, and the tests
 
 - **Deterministic only** — no randomness or model inference for the numbers.
 - Match the surrounding style; run `ruff check .` and `pytest -q` before opening a PR.
-- Keep formulas traceable to a recognised source (the NISM IA Level 1 curriculum is the baseline).
+- Keep formulas traceable to a recognised, citable financial-mathematics source.
 - Cite the formula in the result `dict` and/or a comment.
 
 ## Pull requests

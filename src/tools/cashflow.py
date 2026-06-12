@@ -1,5 +1,5 @@
 """
-Cash Flow & Budgeting (NISM Level 1, Ch 3: Evaluating the Financial Position of Clients)
+Cash Flow & Budgeting
 
 Tools for household cash-flow analysis, savings rate, debt servicing capacity
 and contingency (emergency) fund adequacy — the building blocks of evaluating

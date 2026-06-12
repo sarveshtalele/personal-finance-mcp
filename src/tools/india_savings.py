@@ -1,9 +1,8 @@
 """
 Indian Small Savings & Deposit Instruments
-(NISM Level 1, Ch 9.11 Small Saving Instruments; Ch 9.8 Money Market)
 
-Deterministic maturity calculators for the popular government/bank schemes an
-Indian investment adviser routinely models: PPF, Sukanya Samriddhi, NSC, KVP,
+Deterministic maturity calculators for the popular government/bank schemes
+commonly used in Indian personal finance: PPF, Sukanya Samriddhi, NSC, KVP,
 SCSS, Recurring Deposit, Fixed Deposit and EPF.
 
 All rates are entered as annual percentages.

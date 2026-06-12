@@ -6,7 +6,7 @@ export const metadata = {
   metadataBase: new URL("https://sarveshtalele-personal-finance-mcp.hf.space"),
   title: "FinPlan MCP — 76 financial planning tools for your AI",
   description:
-    "A deterministic personal-finance toolkit (NISM IA Level 1) exposed over the Model Context Protocol. Plan, calculate and analyse from plain-language questions — in Claude Desktop, your IDE, or right here.",
+    "A deterministic personal-finance toolkit exposed over the Model Context Protocol. Plan, calculate and analyse from plain-language questions — in Claude Desktop, your IDE, or right here.",
   openGraph: {
     title: "FinPlan MCP — financial planning tools for your AI",
     description: "76 deterministic financial calculators, a meta-advisor, and live market data — as one MCP connector + website.",
@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
           <div className="container footer-grid">
             <div>
               <Link href="/" className="brand"><span className="brand-mark">₹</span><span>FinPlan&nbsp;MCP</span></Link>
-              <p>Deterministic financial planning, grounded in the NISM Investment Adviser (Level 1) curriculum. Educational use only — not investment advice.</p>
+              <p>Deterministic financial planning, grounded in core financial-planning principles. Educational use only — not investment advice.</p>
             </div>
             <div className="col">
               <h5>Product</h5>

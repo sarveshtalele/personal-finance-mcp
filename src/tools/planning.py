@@ -47,7 +47,7 @@ def calculate_financial_ratios(
     total_liabilities: float,
     liquid_assets: float,
 ) -> dict:
-    """Calculate all key financial ratios from Core Financial Principles."""
+    """Calculate all key personal-finance ratios."""
     savings_ratio = monthly_savings / monthly_income if monthly_income > 0 else 0
     dti_ratio = monthly_emis / monthly_income if monthly_income > 0 else 0
     expense_ratio = monthly_expenses / monthly_income if monthly_income > 0 else 0
@@ -239,7 +239,7 @@ def financial_health_score(
 ) -> dict:
     """
     Comprehensive financial health score (0-100).
-    Based on Core Financial Principles evaluation criteria.
+    Based on standard financial evaluation criteria.
     """
     score = 0
     breakdown = {}

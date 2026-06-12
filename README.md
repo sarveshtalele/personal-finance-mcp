@@ -1,6 +1,6 @@
 # 💰 Personal Finance MCP
 
-> Deterministic personal-finance toolkit exposed over the **Model Context Protocol** — 76 calculators, a meta-advisor, and live market data, with a polished web UI. Grounded in the **NISM Investment Adviser (Level 1)** curriculum.
+> Deterministic personal-finance toolkit exposed over the **Model Context Protocol** — 76 calculators, a meta-advisor, and live market data, with a polished web UI. Grounded in established financial mathematics.
 
 <!-- mcp-name: io.github.sarveshtalele/personal-finance -->
 
@@ -33,7 +33,7 @@ It runs three ways from one codebase:
 
 - 🔢 **Deterministic** — pure math, no model inference for the numbers.
 - 🤖 **Story → tools** — the model maps intent to tools; users never name them.
-- 🇮🇳 **NISM-grounded** — TVM, debt, PPF/SSY/NSC/EPF, bonds, derivatives, MPT, and more.
+- 🇮🇳 **Theory-grounded** — TVM, debt, PPF/SSY/NSC/EPF, bonds, derivatives, MPT, and more.
 - 🛰️ **Live market data** — mutual-fund NAVs (AMFI), FX (ECB), equity quotes (Yahoo) — no API keys.
 - 🔒 **Hardened** — stateless, rate-limited, input-bounded APIs with security headers/CSP.
 
@@ -200,7 +200,7 @@ web UI.
 
 ## Disclaimer
 
-Educational tool based on the NISM IA Level 1 curriculum. **Not investment advice.** Figures
+Educational tool for illustrating standard financial formulas. **Not investment advice.** Figures
 are illustrative; verify before making financial decisions.
 
 ## License

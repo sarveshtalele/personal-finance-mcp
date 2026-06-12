@@ -220,6 +220,67 @@ h1.display { font-size: clamp(40px, 6.4vw, 76px); font-weight: 700; margin-botto
 .footer .col a { display: block; color: var(--muted); font-size: 14px; padding: 4px 0; }
 .footer .col a:hover { color: var(--teal); }
 
+/* ---------- Animated chat demo ---------- */
+.chat { display: flex; flex-direction: column; gap: 14px; min-height: 230px; }
+.bubble { max-width: 88%; padding: 13px 17px; border-radius: 16px; font-size: 15px; line-height: 1.5; }
+.bubble.user { align-self: flex-end; background: var(--teal); color: #fff; border-bottom-right-radius: 5px; }
+.bubble.ai { align-self: flex-start; background: var(--bg-2); color: var(--ink-2); border-bottom-left-radius: 5px; width: 100%; max-width: 100%; }
+.cursor { display: inline-block; width: 2px; height: 1em; background: currentColor; margin-left: 1px; vertical-align: -2px; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.toolrun { font-size: 13px; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.toolrun .call { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--teal-700); font-weight: 600; }
+.tchip { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; background: var(--tint); color: var(--teal-700); padding: 3px 9px; border-radius: 8px; opacity: 0; transform: translateY(6px); animation: pop .35s var(--ease) forwards; }
+@keyframes pop { to { opacity: 1; transform: none; } }
+.aline { display: flex; gap: 9px; padding: 7px 0; font-size: 14.5px; opacity: 0; transform: translateY(6px); animation: pop .4s var(--ease) forwards; }
+.aline .mk { color: var(--teal); font-weight: 700; }
+.aline b { color: var(--ink); }
+.thinking { display: inline-flex; gap: 4px; }
+.thinking i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted-2); animation: bounce 1.2s infinite; }
+.thinking i:nth-child(2) { animation-delay: .15s; } .thinking i:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-5px); opacity: 1; } }
+.report { margin-top: 14px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; animation: pop .4s var(--ease); }
+.report-head { background: linear-gradient(150deg, var(--teal-900), var(--teal-700)); color: #fff; padding: 13px 18px; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+.report-body { padding: 14px 18px; background: #fff; }
+.report-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.report-row:last-child { border-bottom: none; }
+.report-row .k { color: var(--muted); } .report-row .v { font-weight: 650; font-variant-numeric: tabular-nums; }
+.replay { background: none; border: 1px solid var(--line); border-radius: 980px; padding: 6px 14px; font-size: 13px; color: var(--muted); cursor: pointer; font-family: inherit; }
+.replay:hover { border-color: var(--teal); color: var(--teal); }
+.genbtn { margin-top: 12px; }
+
+/* ---------- Client mockups ---------- */
+.tabs { display: inline-flex; gap: 6px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 980px; padding: 5px; margin: 0 auto 32px; }
+.tabs button { border: 0; background: none; padding: 9px 18px; border-radius: 980px; font-size: 14px; font-weight: 550; color: var(--muted); cursor: pointer; font-family: inherit; transition: all .18s; white-space: nowrap; }
+.tabs button.active { background: #fff; color: var(--teal-700); box-shadow: var(--shadow-sm); }
+.mockup { max-width: 820px; margin: 0 auto; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-lg); border: 1px solid var(--line); }
+/* macOS window chrome */
+.win-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: #ecf1ef; border-bottom: 1px solid var(--line); }
+.win-bar .dots { display: flex; gap: 7px; }
+.win-bar .dots i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.win-bar .r { background: #ff5f57; } .win-bar .y { background: #febc2e; } .win-bar .g { background: #28c840; }
+.win-bar .ttl { font-size: 12.5px; color: var(--muted); margin: 0 auto; }
+.win-body { background: #fff; padding: 22px 24px; min-height: 220px; }
+/* desktop chat bubbles */
+.dm-q { background: var(--tint); border-radius: 14px; padding: 11px 15px; font-size: 14px; max-width: 80%; margin-left: auto; color: var(--ink-2); }
+.dm-a { margin-top: 14px; font-size: 14px; color: var(--ink-2); }
+.dm-a .tool { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--teal-700); background: var(--tint); padding: 1px 7px; border-radius: 6px; }
+.dm-a ul { margin: 10px 0 0; padding-left: 4px; list-style: none; }
+.dm-a li { padding: 4px 0; } .dm-a li .mk { color: var(--teal); font-weight: 700; margin-right: 6px; }
+/* terminal (Claude Code) */
+.term { background: #0c1f1c; color: #cfeee7; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; padding: 20px 22px; min-height: 240px; line-height: 1.7; }
+.term .p { color: var(--green); } .term .c { color: #8fd9cc; } .term .d { color: #7f9b95; } .term .hl { color: #fff; font-weight: 600; }
+/* VS Code */
+.vs { display: grid; grid-template-columns: 48px 180px 1fr; min-height: 260px; background: #1e1e1e; color: #d4d4d4; font-size: 13px; }
+.vs-act { background: #333; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 14px 0; color: #858585; font-size: 18px; }
+.vs-side { background: #252526; padding: 12px 14px; font-size: 12px; color: #bbb; border-right: 1px solid #1a1a1a; }
+.vs-side .h { text-transform: uppercase; font-size: 10.5px; letter-spacing: .08em; color: #888; margin: 0 0 10px; }
+.vs-side .file { padding: 3px 0; color: #ccc; } .vs-side .file.on { color: #fff; }
+.vs-main { padding: 0; display: flex; flex-direction: column; }
+.vs-tab { background: #2d2d2d; padding: 9px 16px; font-size: 12px; color: #fff; border-right: 1px solid #1a1a1a; display: inline-block; }
+.vs-chat { padding: 16px 18px; font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; line-height: 1.7; }
+.vs-chat .u { color: #4ec9b0; } .vs-chat .tool { color: #569cd6; } .vs-chat .hl { color: #fff; }
+@media (max-width: 700px) { .vs { grid-template-columns: 40px 1fr; } .vs-side { display: none; } }
+
 .page-head { padding: 72px 0 12px; }
 .page-head .kicker { color: var(--teal); font-weight: 650; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
 .page-head h1 { font-size: clamp(32px, 5vw, 54px); margin: 12px 0; }

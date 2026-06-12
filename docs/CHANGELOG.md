@@ -8,8 +8,8 @@
 
 ### Documentation
 - **`docs/anthropic.md`** — comprehensive, Python-specific instructions mirroring the TypeScript MCP-Registry Quickstart.
-- **`docs/documentation.md`** — systematically cleansed out all legacy NISM/Curriculum "Chapter" associations. Formalized mathematical equations and strictly standalone architecture descriptions.
-- **`README.md`** — similarly refined and purged of legacy curriculum pointers. 
+- **`docs/documentation.md`** — formalized mathematical equations and standalone architecture descriptions.
+- **`README.md`** — refined documentation and tool references.
 
 ### Refined
 - Applied `ruff format` and `ruff check --fix` over the entire `src/` hierarchy.
@@ -23,7 +23,7 @@
 ### Added
 - **Integration test suite** (`test_integration.py`) — 18 new tests
   - Server registration verification for all 54 tools across 7 categories
-  - Output format validation (MVP references, currency formatting, formulas)
+  - Output format validation (reference labels, currency formatting, formulas)
   - End-to-end scenario tests: retirement planning, debt analysis, SIP/goal, portfolio
 - **`__main__.py`** — enables `python -m src` server startup
 - **`Dockerfile`** — production container with healthcheck
@@ -47,7 +47,7 @@
 
 ### Built
 - Complete MCP server with **54 financial tools** across 7 categories
-- All calculations based on **Complete Financial Planning MVP** curriculum
+- All calculations based on standard, deterministic financial formulas
 - Stateless design — no database, no session storage
 
 ### Architecture
@@ -57,15 +57,15 @@
 - Pydantic models for input validation
 
 ### Tool Categories Implemented
-| Category | Tools | MVP Chapter |
-|----------|-------|-------------|
-| Time Value of Money | 10 | Ch 2 |
-| Debt Management | 6 | Ch 4 |
-| Financial Planning | 9 | Ch 1, 3 |
-| Bond Analysis | 6 | Ch 9 |
-| Stock Valuation | 5 | Ch 8 |
-| Mutual Funds | 7 | Ch 11 |
-| Portfolio Analytics | 11 | Ch 14-16 |
+| Category | Tools | Topic |
+|----------|-------|-------|
+| Time Value of Money | 10 | Compounding, annuities, perpetuities |
+| Debt Management | 6 | EMI, amortization, prepayment |
+| Financial Planning | 9 | Net worth, ratios, retirement |
+| Bond Analysis | 6 | Pricing, YTM, duration |
+| Stock Valuation | 5 | DDM, DCF, P/E |
+| Mutual Funds | 7 | SIP, SWP, CAGR, NAV |
+| Portfolio Analytics | 11 | MPT, CAPM, risk-adjusted return |
 
 ### Key Formulas Implemented
 - TVM: FV, PV, Annuity (ordinary/due), Perpetuity (simple/growing), EAR, Fisher equation
@@ -79,7 +79,7 @@
 
 ### Testing
 - **86 unit tests** — all passing
-- Tests verify against hand-calculated textbook values
+- Tests verify against hand-calculated reference values
 - Coverage across all 7 calculator modules
 
 ### Tech Stack

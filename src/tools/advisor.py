@@ -1,6 +1,5 @@
 """
 Meta-Advisor Orchestrator
-(NISM Level 1, Ch 1 Financial Planning Process; Ch 15 Portfolio Construction)
 
 This is the bridge between a user's *story* and the deterministic calculators.
 Instead of the user naming a tool, they describe their situation; the model fills
