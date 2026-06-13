@@ -32,3 +32,10 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    ignore:
+      # Keep base images on supported LTS / widely-available wheels.
+      # Major bumps (e.g. node 26, python 3.14) are reviewed manually.
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major"]
