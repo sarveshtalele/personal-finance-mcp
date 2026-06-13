@@ -97,6 +97,25 @@ export default function Connect() {
           </div>
         </div>
 
+        <div className="step">
+          <div className="step-num">6</div>
+          <div style={{ flex: 1 }}>
+            <h4>Other IDEs &amp; MCP clients</h4>
+            <p><strong>Cursor / Windsurf / Zed</strong> — add an HTTP MCP server in <code>mcp.json</code> (or the app&rsquo;s MCP settings):</p>
+            <Code>{`{
+  "mcpServers": {
+    "personal-finance": { "url": "${url}", "transport": "http" }
+  }
+}`}</Code>
+            <p><strong>Continue</strong> (<code>~/.continue/config.yaml</code>):</p>
+            <Code>{`mcpServers:
+  - name: personal-finance
+    transport: streamable-http
+    url: ${url}`}</Code>
+            <p><strong>Cline</strong> (VS Code) — MCP Servers panel → <em>Add remote server</em> → paste <code>{url}</code>. If a client only supports stdio, bridge it with <code>npx mcp-remote {url}</code>.</p>
+          </div>
+        </div>
+
         <h3 style={{ marginTop: 40 }}>Try these prompts</h3>
         <div className="grid grid-2">
           {[

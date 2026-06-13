@@ -290,6 +290,31 @@ h1.display { font-size: clamp(40px, 6.4vw, 76px); font-weight: 700; margin-botto
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
 .reveal.in { opacity: 1; transform: none; }
 
+/* ---------- Accessibility ---------- */
+/* Visible keyboard-focus ring on every interactive element. */
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.skip-link {
+  position: absolute; left: -999px; top: 8px; z-index: 200;
+  background: var(--teal); color: #fff; padding: 10px 16px; border-radius: 10px;
+}
+.skip-link:focus { left: 12px; }
+
+/* Respect users who prefer reduced motion: kill animations + reveal transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
+}
+
 @media (max-width: 900px) {
   .nav-links { display: none; }
   .nav-burger { display: block; }

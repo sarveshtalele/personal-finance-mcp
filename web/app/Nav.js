@@ -35,11 +35,12 @@ export default function Nav() {
         </Link>
         <div className="nav-links">
           {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className={isActive(l.href) ? "active" : ""}>{l.label}</Link>
+            <Link key={l.href} href={l.href} className={isActive(l.href) ? "active" : ""}
+              aria-current={isActive(l.href) ? "page" : undefined}>{l.label}</Link>
           ))}
           <Link href="/connect/" className="nav-cta">Connect</Link>
         </div>
-        <button className="nav-burger" aria-label="Menu" onClick={() => setOpen((o) => !o)}>
+        <button className="nav-burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
           {open ? "✕" : "☰"}
         </button>
       </div>

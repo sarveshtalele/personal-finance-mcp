@@ -19,8 +19,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <a href="#main" className="skip-link">Skip to content</a>
         <Nav />
-        <main>{children}</main>
+        <main id="main">{children}</main>
         <footer className="footer">
           <div className="container footer-grid">
             <div>
