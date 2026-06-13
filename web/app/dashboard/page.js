@@ -106,6 +106,9 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+        <p className="muted" style={{ fontSize: 12.5, marginTop: 32, textAlign: "center" }}>
+          Market data is delayed/best-effort from public sources. For information only, not investment advice.
+        </p>
       </div>
     </div>
   );

@@ -24,7 +24,7 @@ from pathlib import Path
 
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import FileResponse, JSONResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
@@ -328,6 +328,15 @@ def build_app():
 
     static_dir = Path(__file__).resolve().parents[2] / "web" / "out"
     if static_dir.is_dir():
+        # Next exports the OG image without a file extension; serve it as PNG so
+        # social scrapers (LinkedIn/X/PH) accept it.
+        og = static_dir / "opengraph-image"
+        if og.is_file():
+            async def opengraph_image(_request):
+                return FileResponse(str(og), media_type="image/png")
+
+            app.router.routes.insert(0, Route("/opengraph-image", opengraph_image))
+
         app.router.routes.append(
             Mount("/", app=StaticFiles(directory=str(static_dir), html=True))
         )

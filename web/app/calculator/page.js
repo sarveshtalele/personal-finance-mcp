@@ -151,14 +151,14 @@ export default function Calculator() {
                     {f.type === "slider" && <span className="val">{liveFmt(f.unit, vals[f.key])}</span>}
                   </div>
                   {f.type === "select" ? (
-                    <select value={vals[f.key]} onChange={(e) => setVals({ ...vals, [f.key]: e.target.value })}>
+                    <select aria-label={f.label} value={vals[f.key]} onChange={(e) => setVals({ ...vals, [f.key]: e.target.value })}>
                       {f.opts.map((o) => <option key={o} value={o}>{o.replace(/_/g, " ")}</option>)}
                     </select>
                   ) : (
                     <>
-                      <input type="range" min={f.min} max={f.max} step={f.step} value={vals[f.key]}
+                      <input type="range" aria-label={`${f.label} slider`} min={f.min} max={f.max} step={f.step} value={vals[f.key]}
                         onChange={(e) => setVals({ ...vals, [f.key]: Number(e.target.value) })} />
-                      <input type="number" min={f.min} max={f.max} step={f.step} value={vals[f.key]}
+                      <input type="number" aria-label={f.label} min={f.min} max={f.max} step={f.step} value={vals[f.key]}
                         onChange={(e) => setVals({ ...vals, [f.key]: Number(e.target.value) })} style={{ marginTop: 8 }} />
                     </>
                   )}
@@ -205,6 +205,9 @@ export default function Calculator() {
             </div>
           </div>
         </div>
+        <p className="muted" style={{ fontSize: 12.5, marginTop: 28, textAlign: "center" }}>
+          Educational tool. Figures are illustrative and not investment advice.
+        </p>
       </div>
     </div>
   );

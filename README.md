@@ -6,7 +6,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![MCP](https://img.shields.io/badge/MCP-streamable--http-blueviolet)](https://modelcontextprotocol.io/)
-[![Tests](https://img.shields.io/badge/tests-129_passing-brightgreen)](tests/)
+[![Tests](https://img.shields.io/badge/tests-137_passing-brightgreen)](tests/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Live on Hugging Face](https://img.shields.io/badge/demo-Hugging%20Face-yellow?logo=huggingface&logoColor=white)](https://huggingface.co/spaces/sarveshtalele/personal-finance-mcp)
 
@@ -15,13 +15,13 @@
 
 ## Demo
 
-<!--
-  Drag a video (.mp4/.mov/.webm, up to ~100 MB) into any GitHub issue/PR/release
-  box; GitHub returns a https://github.com/user-attachments/assets/... URL.
-  Paste that URL on its own line below — GitHub renders an inline player.
--->
-<!-- DEMO_VIDEO -->
-_Demo video coming soon._
+[![Watch the demo](https://img.youtube.com/vi/G27KlYvo6SE/maxresdefault.jpg)](https://youtu.be/G27KlYvo6SE)
+
+▶️ **[Watch the 2-minute demo](https://youtu.be/G27KlYvo6SE)** — plain-language question → chained tools → a prioritized plan.
+
+> **Public demo note:** the hosted Space is a shared, best-effort instance (rate-limited,
+> may cold-start after idle). For heavy or private use, run it locally or self-host
+> (see [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md)).
 
 ---
 
