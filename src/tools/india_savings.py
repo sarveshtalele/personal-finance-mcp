@@ -163,6 +163,45 @@ def epf_corpus(
     }
 
 
+def calculate_gratuity(
+    last_monthly_salary: float,
+    tenure_years: int,
+) -> dict:
+    """Gratuity under the Payment of Gratuity Act, 1972.
+
+    Formula: Gratuity = (Last Drawn Salary × 15 × Years of Service) / 26
+    Tax-exempt up to ₹20,00,000 for non-government employees.
+    Minimum 5 years of continuous service required for eligibility.
+    """
+    if last_monthly_salary <= 0:
+        raise ValueError("Salary must be positive")
+    if tenure_years < 0:
+        raise ValueError("Years of service cannot be negative")
+
+    eligible = tenure_years >= 5
+    if not eligible:
+        return {
+            "gratuity_amount": 0.0,
+            "eligible": False,
+            "reason": "Minimum 5 years of continuous service required under the Act",
+            "formula": "Gratuity = (Last Salary × 15 × Years) / 26",
+        }
+
+    gratuity = (last_monthly_salary * 15 * tenure_years) / 26
+    tax_exempt_limit = 2_000_000.0
+    taxable_portion = max(0.0, gratuity - tax_exempt_limit)
+
+    return {
+        "gratuity_amount": round(gratuity, 2),
+        "eligible": True,
+        "tenure_years": tenure_years,
+        "last_monthly_salary": last_monthly_salary,
+        "tax_exempt_up_to": tax_exempt_limit,
+        "taxable_portion": round(taxable_portion, 2),
+        "formula": "Gratuity = (Last Salary × 15 × Years) / 26",
+    }
+
+
 # ruff: noqa: E402
 from mcp.server.fastmcp import FastMCP
 from ..utils.formatters import format_tool_response
@@ -273,4 +312,19 @@ def register(mcp: FastMCP):
                 employer_pct,
                 annual_increment,
             ),
+        )
+
+    @mcp.tool(name="calculate_gratuity")
+    def calculate_gratuity_tool(
+        last_monthly_salary: float,
+        tenure_years: int,
+    ) -> str:
+        """Calculate gratuity under India's Payment of Gratuity Act, 1972.
+        Use when a user asks about gratuity eligibility or payout at
+        retirement/resignation. Applies to employees with 5+ years of
+        continuous service. Tax-exempt up to ₹20,00,000.
+        Formula: Gratuity = (Last Salary × 15 × Years) / 26"""
+        return format_tool_response(
+            "Gratuity Calculation",
+            calculate_gratuity(last_monthly_salary, tenure_years),
         )

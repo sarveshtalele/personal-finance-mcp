@@ -16,7 +16,7 @@ class TestServerRegistration:
 
     def test_total_tool_count(self):
         tools = mcp._tool_manager._tools
-        assert len(tools) == 76, f"Expected 76 tools, got {len(tools)}"
+        assert len(tools) == 77, f"Expected 77 tools, got {len(tools)}"
 
     def test_tvm_tools_present(self):
         tool_names = list(mcp._tool_manager._tools.keys())

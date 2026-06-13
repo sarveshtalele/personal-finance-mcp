@@ -2,6 +2,7 @@
 cash flow, risk profiling, advisor)."""
 
 import math
+import pytest
 
 from src.tools.derivatives import (
     futures_fair_value,
@@ -16,6 +17,7 @@ from src.tools.india_savings import (
     fixed_deposit,
     kvp_maturity,
     recurring_deposit,
+    calculate_gratuity,
 )
 from src.tools.cashflow import cash_flow_statement, debt_to_income, contingency_fund
 from src.tools.risk_profile import risk_profile_score
@@ -69,6 +71,29 @@ class TestIndiaSavings:
     def test_rd_beats_deposits(self):
         r = recurring_deposit(5000, 7, 12)
         assert r["maturity_value"] > r["total_deposited"]
+
+    def test_calculate_gratuity_eligible(self):
+        """Gratuity for 10 years service with ₹50,000 monthly salary."""
+        result = calculate_gratuity(last_monthly_salary=50000, tenure_years=10)
+        assert result["eligible"] is True
+        assert result["gratuity_amount"] == pytest.approx(288461.54, rel=0.01)
+        assert result["tenure_years"] == 10
+
+    def test_calculate_gratuity_ineligible_less_than_5_years(self):
+        """Employees with less than 5 years are not eligible."""
+        result = calculate_gratuity(last_monthly_salary=50000, tenure_years=3)
+        assert result["eligible"] is False
+        assert result["gratuity_amount"] == 0.0
+
+    def test_calculate_gratuity_negative_salary_raises(self):
+        """Negative salary should raise ValueError."""
+        with pytest.raises(ValueError):
+            calculate_gratuity(last_monthly_salary=-1000, tenure_years=10)
+
+    def test_calculate_gratuity_tax_exemption_limit(self):
+        """High salary, long tenure should exceed ₹20L tax exemption."""
+        result = calculate_gratuity(last_monthly_salary=200000, tenure_years=30)
+        assert result["taxable_portion"] > 0
 
 
 class TestCashFlow:
