@@ -4,7 +4,7 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and the
 project follows [Semantic Versioning](https://semver.org/).
 
-## [1.0.0] — 2026-06-13 — Public launch 🚀
+## [2.0.0] — 2026-06-13 — Public launch 🚀
 
 First public release of Personal Finance MCP: a deterministic personal-finance
 toolkit exposed over the Model Context Protocol, with a website and a hosted
@@ -39,8 +39,8 @@ connector.
   branch protection on `main`; automated GitHub → Hugging Face deploy.
 - Accessibility: focus-visible rings, skip link, ARIA labels, reduced-motion support.
 
-> Note: development builds 1.0.2 / 1.1.0 were published to PyPI before this public
-> 1.0.0 launch; `pip` may resolve a higher development build until the line is
-> reconciled.
+> Note: early development builds (1.0.0–1.1.0) were published to PyPI before this
+> public launch. This 2.0.0 release is the first stable public version and is the
+> one `pip install personal-finance-mcp` resolves.
 
-[1.0.0]: https://github.com/sarveshtalele/personal-finance-mcp/releases/tag/v1.0.0
+[2.0.0]: https://github.com/sarveshtalele/personal-finance-mcp/releases/tag/v2.0.0

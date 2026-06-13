@@ -1,6 +1,6 @@
 [project]
 name = "personal-finance-mcp"
-version = "1.0.0"
+version = "2.0.0"
 description = "Complete personal-finance MCP server + website (76 deterministic tools)"
 readme = "README.md"
 license = {text = "MIT"}
