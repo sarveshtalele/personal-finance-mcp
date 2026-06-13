@@ -332,6 +332,7 @@ def build_app():
         # social scrapers (LinkedIn/X/PH) accept it.
         og = static_dir / "opengraph-image"
         if og.is_file():
+
             async def opengraph_image(_request):
                 return FileResponse(str(og), media_type="image/png")
 
