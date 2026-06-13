@@ -90,7 +90,13 @@ class TestCashFlow:
 class TestRiskProfile:
     def test_young_aggressive(self):
         r = risk_profile_score(25, 35, 5, 4, 5, 0)
-        assert r["suggested_equity_pct"] + r["suggested_debt_pct"] == 100
+        total = (
+            r["suggested_equity_pct"]
+            + r["suggested_debt_pct"]
+            + r["suggested_gold_pct"]
+        )
+        assert round(total) == 100
+        assert r["suggested_equity_pct"] >= 80  # young + aggressive -> high equity
         assert r["risk_score"] >= 55
 
     def test_old_conservative(self):

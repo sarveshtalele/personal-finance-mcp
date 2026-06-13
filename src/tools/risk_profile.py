@@ -4,7 +4,22 @@ Risk Profiling & Suitability
 Bridges a client's risk *tolerance* (willingness) and risk *capacity* (ability)
 into a profile and a suggested equity/debt split — the suitability step that must
 precede any asset-allocation recommendation.
+
+The equity/debt/gold split is NOT computed here independently. It is delegated to
+the single allocation engine (`asset_allocation_suggestion`) so that this tool and
+`suggest_asset_allocation` can never disagree for the same person.
 """
+
+from .portfolio import asset_allocation_suggestion
+
+# Risk-score band -> (label, allocation-engine profile key)
+_PROFILE_BANDS = [
+    (75, "Aggressive", "aggressive"),
+    (55, "Moderately Aggressive", "moderately_aggressive"),
+    (40, "Moderate", "moderate"),
+    (25, "Conservative", "moderately_conservative"),
+    (0, "Very Conservative", "conservative"),
+]
 
 
 def risk_profile_score(
@@ -37,16 +52,17 @@ def risk_profile_score(
     score = round(0.5 * capacity + 0.5 * tolerance)
     score = min(score, round(capacity) + 15)  # cannot greatly exceed capacity
 
-    if score >= 75:
-        profile, equity = "Aggressive", 80
-    elif score >= 55:
-        profile, equity = "Moderately Aggressive", 65
-    elif score >= 40:
-        profile, equity = "Moderate", 50
-    elif score >= 25:
-        profile, equity = "Conservative", 30
-    else:
-        profile, equity = "Very Conservative", 15
+    for threshold, label, key in _PROFILE_BANDS:
+        if score >= threshold:
+            profile, profile_key = label, key
+            break
+
+    # Single source of truth for the split — the allocation engine.
+    alloc = asset_allocation_suggestion(age, profile_key, horizon_years)
+    split = alloc["recommended_allocation"]
+    equity = split["equity"]
+    debt = split["debt"]
+    gold = split["gold_and_alternatives"]
 
     return {
         "risk_score": score,
@@ -54,13 +70,18 @@ def risk_profile_score(
         "risk_capacity": round(capacity),
         "risk_tolerance": round(tolerance),
         "suggested_equity_pct": equity,
-        "suggested_debt_pct": 100 - equity,
+        "suggested_debt_pct": debt,
+        "suggested_gold_pct": gold,
         "guidance": (
-            f"{profile} investor: target ~{equity}% growth assets (equity) and "
-            f"{100 - equity}% stability assets (debt/cash). "
-            "Re-profile after major life events."
+            f"{profile} investor: target {equity}% equity, {debt}% debt, {gold}% "
+            f"gold/alternatives. Re-profile after major life events."
         ),
-        "formula": "Score = blend(capacity, tolerance), capped near capacity for suitability",
+        "allocation_source": "asset_allocation_suggestion (canonical engine)",
+        "presentation_note": (
+            "Present these exact percentages. They match suggest_asset_allocation "
+            "for the same age/horizon/profile — do not substitute other numbers."
+        ),
+        "formula": "Score = blend(capacity, tolerance); split delegated to allocation engine",
     }
 
 

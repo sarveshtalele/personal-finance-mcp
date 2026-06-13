@@ -297,9 +297,11 @@ def asset_allocation_suggestion(
     age: int,
     risk_profile: str,
     investment_horizon_years: float,
+    monthly_investment: float = 0.0,
 ) -> dict:
     """
     Suggest asset allocation based on age, risk profile, and horizon.
+    Pass monthly_investment to also get the exact per-bucket monthly amounts.
     """
     # Age-based equity rule: 100 - age = equity %
     age_based_equity = max(100 - age, 10)
@@ -328,7 +330,7 @@ def asset_allocation_suggestion(
     debt_pct = max(100 - equity_pct - 10, 5)  # minimum 5% in debt
     gold_alternatives = 100 - equity_pct - debt_pct
 
-    return {
+    result = {
         "recommended_allocation": {
             "equity": round(equity_pct, 1),
             "debt": round(debt_pct, 1),
@@ -343,8 +345,25 @@ def asset_allocation_suggestion(
             "horizon_adjustment": horizon_adj,
             "final_equity": equity_pct,
         },
+        "presentation_note": (
+            "This is the ONLY correct allocation for these inputs. Present these "
+            "exact percentages and amounts. Do not invent sub-splits, fund names, "
+            "expected returns or tax figures that are not produced by a tool."
+        ),
         "reference": "Modern Portfolio Theory",
     }
+
+    if monthly_investment and monthly_investment > 0:
+        result["monthly_investment"] = round(monthly_investment, 2)
+        result["monthly_breakdown"] = {
+            "equity": round(monthly_investment * equity_pct / 100, 2),
+            "debt": round(monthly_investment * debt_pct / 100, 2),
+            "gold_and_alternatives": round(
+                monthly_investment * gold_alternatives / 100, 2
+            ),
+        }
+
+    return result
 
 
 def portfolio_rebalancing(
@@ -519,12 +538,15 @@ def register(mcp: FastMCP):
         age: int,
         risk_profile: str,
         investment_horizon_years: float,
+        monthly_investment: float = 0.0,
     ) -> str:
         """Suggest asset allocation based on age, risk profile, and investment horizon.
-        Uses 100-age equity rule with adjustments.
+        Uses 100-age equity rule with adjustments. This is the single source of truth
+        for an equity/debt/gold split — assess_risk_profile returns the same numbers.
+        Pass monthly_investment to also get exact per-bucket monthly amounts.
         risk_profile: conservative, moderately_conservative, moderate, moderately_aggressive, aggressive."""
         result = asset_allocation_suggestion(
-            age, risk_profile, investment_horizon_years
+            age, risk_profile, investment_horizon_years, monthly_investment
         )
         return format_tool_response("Asset Allocation Recommendation", result)
 
