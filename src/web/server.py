@@ -3,7 +3,7 @@ Unified, hardened HTTP server for Hugging Face (or any host).
 
 Serves three things from one ASGI app on a single port:
   /mcp        -> the MCP server over streamable-HTTP (use this URL as a connector)
-  /api/*      -> JSON endpoints for the website (tool catalog, calculators, live data)
+  /api/* -> JSON endpoints for the website (tool catalog, calculators, live data)
   /           -> the exported Next.js website (static files)
 
 Security: a transparent ASGI middleware adds security headers (incl. CSP) to every
@@ -48,6 +48,7 @@ CALCULATORS = {
     "fixed_deposit": india_savings.fixed_deposit,
     "nsc": india_savings.nsc_maturity,
     "epf": india_savings.epf_corpus,
+    "gratuity": india_savings.calculate_gratuity,
     "financial_plan": advisor.create_financial_plan,
 }
 
