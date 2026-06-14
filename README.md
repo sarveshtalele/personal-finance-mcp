@@ -1,6 +1,6 @@
 # 💰 Personal Finance MCP
 
-> Deterministic personal-finance toolkit exposed over the **Model Context Protocol** — 76 calculators, a meta-advisor, and live market data, with a polished web UI. Grounded in established financial mathematics.
+> Deterministic personal-finance toolkit exposed over the **Model Context Protocol** — 77 calculators, a meta-advisor, and live market data, with a polished web UI. Grounded in established financial mathematics.
 
 <!-- mcp-name: io.github.sarveshtalele/personal-finance -->
 
@@ -27,7 +27,7 @@
 
 ## Overview
 
-Most finance "assistants" guess at numbers. This one doesn't. It ships **76 deterministic
+Most finance "assistants" guess at numbers. This one doesn't. It ships **77 deterministic
 calculators** — same inputs, same answer, every time — and lets an LLM route a plain-language
 question to the right tools. Describe your situation ("I'm 30, earn ₹1L/month, want to retire
 at 60") and the `create_financial_plan` orchestrator chains the relevant calculators into a
@@ -49,14 +49,14 @@ It runs three ways from one codebase:
 
 ---
 
-## Tool catalog — 76 tools, 13 categories
+## Tool catalog — 77 tools, 13 categories
 
 | Category | Tools | Examples |
 |----------|:----:|----------|
 | Time Value of Money | 10 | future/present value, annuity, perpetuity, EAR, real return |
 | Portfolio Analytics | 11 | CAPM, Sharpe, Sortino, Treynor, alpha, allocation, rebalancing |
 | Financial Planning | 9 | net worth, ratios, emergency fund, retirement, education, insurance |
-| Small Savings (India) | 8 | PPF, SSY, NSC, KVP, SCSS, RD, FD, EPF |
+| Small Savings (India) | 9 | PPF, SSY, NSC, KVP, SCSS, RD, FD, EPF |
 | Mutual Funds | 7 | SIP, SWP, lumpsum-vs-SIP, CAGR, NAV, expense-ratio impact |
 | Debt & Loans | 6 | EMI, amortization, prepayment, consolidation, invest-vs-prepay |
 | Fixed Income | 6 | bond price, YTM, current yield, duration, convexity, zero-coupon |

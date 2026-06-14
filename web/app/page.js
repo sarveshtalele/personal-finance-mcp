@@ -5,7 +5,7 @@ import ClientMockups from "./ClientMockups";
 
 const FEATURES = [
   { icon: "🤖", title: "Understands your story", body: "Describe your situation in plain words. The advisor maps it to the right calculators and chains them — you never name a tool." },
-  { icon: "🧮", title: "76 deterministic tools", body: "Time value of money, loans, SIPs, bonds, derivatives, portfolio analytics and Indian small-savings. Exact maths — same inputs, same answer, every time." },
+  { icon: "🧮", title: "77 deterministic tools", body: "Time value of money, loans, SIPs, bonds, derivatives, portfolio analytics and Indian small-savings. Exact maths — same inputs, same answer, every time." },
   { icon: "🇮🇳", title: "Grounded in financial theory", body: "Every formula traces to established financial mathematics: PPF, SSY, NSC, EMI, CAPM, bond duration and more." },
   { icon: "🛰️", title: "Live market data", body: "Real mutual-fund NAVs (AMFI), FX rates (ECB) and equity quotes (Yahoo) — fetched live, no API keys, nothing to configure." },
   { icon: "🔌", title: "Works everywhere", body: "One connector URL plugs into Claude Desktop, Claude Code, Cursor, or any MCP-compatible client. Add it in under a minute." },
@@ -31,7 +31,7 @@ export default function Home() {
       <section className="hero">
         <div className="hero-mesh" />
         <div className="container">
-          <span className="eyebrow"><span className="dot" /> Model Context Protocol · 76 tools · live</span>
+          <span className="eyebrow"><span className="dot" /> Model Context Protocol · 77 tools · live</span>
           <h1 className="display">Financial planning,<br /><span className="gradient-text">answered by maths.</span></h1>
           <p className="lead">
             A deterministic financial toolkit your AI can actually use. Plan retirement, size a SIP,
@@ -52,7 +52,7 @@ export default function Home() {
       <section className="band section tight">
         <div className="container">
           <div className="stats">
-            {[["76", "Financial tools"], ["13", "Categories"], ["3", "Live data feeds"], ["0", "API keys"]].map(([n, l], i) => (
+            {[["77", "Financial tools"], ["13", "Categories"], ["3", "Live data feeds"], ["0", "API keys"]].map(([n, l], i) => (
               <Reveal key={l} delay={i * 70}><div className="stat"><div className="stat-num">{n}</div><div className="stat-label">{l}</div></div></Reveal>
             ))}
           </div>
@@ -113,7 +113,7 @@ export default function Home() {
                 <h2 style={{ fontSize: "clamp(28px,4vw,40px)", margin: "12px 0 16px" }}>Everything a personal-finance conversation needs</h2>
                 <p className="muted" style={{ fontSize: 17 }}>Thirteen categories of tools, from a first budget to portfolio risk-adjusted returns — all callable by your AI or right here in the browser.</p>
                 <div className="btn-row" style={{ marginTop: 24, justifyContent: "flex-start" }}>
-                  <Link href="/tools/" className="btn btn-primary">Browse all 76 tools</Link>
+                  <Link href="/tools/" className="btn btn-primary">Browse all 77 tools</Link>
                 </div>
               </div>
             </Reveal>
@@ -134,7 +134,7 @@ export default function Home() {
             <div className="card" style={{ textAlign: "center", padding: 48, background: "linear-gradient(160deg, var(--teal-900), var(--teal-700))", color: "#fff", border: "none" }}>
               <h2 style={{ fontSize: "clamp(28px,4vw,40px)" }}>Add it as a connector in 60 seconds</h2>
               <p style={{ color: "var(--green-soft)", fontSize: 17, maxWidth: 480, margin: "12px auto 24px" }}>
-                Point any MCP client at one streamable-HTTP endpoint — all 76 tools appear instantly.
+                Point any MCP client at one streamable-HTTP endpoint — all 77 tools appear instantly.
               </p>
               <div className="btn-row">
                 <Link href="/connect/" className="btn" style={{ background: "#fff", color: "var(--teal-700)" }}>Setup guide</Link>

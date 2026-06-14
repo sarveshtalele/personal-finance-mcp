@@ -45,7 +45,7 @@ export default function OG() {
           answered by math.
         </div>
         <div style={{ fontSize: 30, marginTop: 30, opacity: 0.9, display: "flex" }}>
-          76 deterministic finance tools · one MCP connector · live data
+          77 deterministic finance tools · one MCP connector · live data
         </div>
       </div>
     ),

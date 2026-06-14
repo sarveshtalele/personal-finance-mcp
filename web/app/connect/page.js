@@ -21,7 +21,7 @@ export default function Connect() {
     <div className="container">
       <div className="page-head">
         <h1>Connect in 60 seconds</h1>
-        <p>One streamable-HTTP endpoint. Add it anywhere that speaks MCP — all 76 tools show up instantly.</p>
+        <p>One streamable-HTTP endpoint. Add it anywhere that speaks MCP — all 77 tools show up instantly.</p>
       </div>
 
       <div className="section" style={{ paddingTop: 24, maxWidth: 820 }}>

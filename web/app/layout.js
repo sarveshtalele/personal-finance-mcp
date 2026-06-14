@@ -4,12 +4,12 @@ import Nav from "./Nav";
 
 export const metadata = {
   metadataBase: new URL("https://sarveshtalele-personal-finance-mcp.hf.space"),
-  title: "FinPlan MCP — 76 financial planning tools for your AI",
+  title: "FinPlan MCP — 77 financial planning tools for your AI",
   description:
     "A deterministic personal-finance toolkit exposed over the Model Context Protocol. Plan, calculate and analyse from plain-language questions — in Claude Desktop, your IDE, or right here.",
   openGraph: {
     title: "FinPlan MCP — financial planning tools for your AI",
-    description: "76 deterministic financial calculators, a meta-advisor, and live market data — as one MCP connector + website.",
+    description: "77 deterministic financial calculators, a meta-advisor, and live market data — as one MCP connector + website.",
     type: "website",
   },
 };
