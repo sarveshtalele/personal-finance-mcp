@@ -35,7 +35,7 @@ jobs:
 
     - name: Verify tools registration
       run: |
-        python -c "from src.server import mcp; n=len(mcp._tool_manager._tools); assert n == 76, n"
+        python -c "from src.server import mcp; n=len(mcp._tool_manager._tools); assert n == 77, n"
 
     - name: Build package
       run: |
