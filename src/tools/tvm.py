@@ -148,6 +148,9 @@ def perpetuity_value(pmt: float, annual_rate: float, growth_rate: float = 0) -> 
     r = annual_rate / 100
     g = growth_rate / 100
 
+    if annual_rate <= 0:
+        return {"error": "Annual rate must be greater than zero"}
+
     if growth_rate > 0:
         if r <= g:
             return {
@@ -171,6 +174,9 @@ def perpetuity_value(pmt: float, annual_rate: float, growth_rate: float = 0) -> 
 
 def rule_of_72(annual_rate: float) -> dict:
     """Rule of 72: Approximate years to double an investment."""
+    if annual_rate <= 0:
+        return {"error": "Annual rate must be greater than zero"}
+
     years_approx = 72 / annual_rate
     years_exact = math.log(2) / math.log(1 + annual_rate / 100)
 
@@ -186,6 +192,9 @@ def effective_annual_rate(nominal_rate: float, compounding_periods: int) -> dict
     """EAR = (1 + r/n)^n - 1"""
     r = nominal_rate / 100
     n = compounding_periods
+
+    if n < 0:
+        return {"error": "Compounding periods must be non-negative"}
 
     if n == 0:  # continuous
         ear = math.exp(r) - 1
@@ -246,6 +255,9 @@ def required_monthly_savings(
     """Calculate monthly savings needed to reach a target corpus."""
     r = annual_rate / 100 / 12
     n = int(years * 12)
+
+    if n <= 0:
+        return {"error": "Years must be greater than zero"}
 
     # Future value of current savings
     fv_current = current_savings * (1 + r) ** n if current_savings > 0 else 0
