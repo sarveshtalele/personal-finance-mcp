@@ -134,3 +134,7 @@ class TestInputGuards:
     def test_effective_rate_rejects_negative_compounding(self):
         result = effective_annual_rate(12, -1)
         assert "error" in result
+
+    def test_required_savings_rejects_zero_duration(self):
+        result = required_monthly_savings(100000, 0, 0)
+        assert "error" in result
