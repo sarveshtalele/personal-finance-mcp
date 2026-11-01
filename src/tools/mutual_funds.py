@@ -78,6 +78,9 @@ def sip_required_for_target(
     r = annual_return / 100 / 12
     n = int(years * 12)
 
+    if n <= 0:
+        return {"error": "Years must be greater than zero"}
+
     if r == 0:
         monthly = target_amount / n
     else:
@@ -230,6 +233,9 @@ def nav_calculation(
     total_assets: float, total_liabilities: float, units_outstanding: float
 ) -> dict:
     """NAV = (Total Assets - Total Liabilities) / Units Outstanding"""
+    if units_outstanding <= 0:
+        return {"error": "Units outstanding must be greater than zero"}
+
     nav = (total_assets - total_liabilities) / units_outstanding
 
     return {
