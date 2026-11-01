@@ -116,3 +116,21 @@ class TestSavingsNeeded:
     def test_existing_savings_sufficient(self):
         result = required_monthly_savings(100000, 12, 10, 200000)
         assert result["monthly_savings_needed"] == 0
+
+
+class TestInputGuards:
+    def test_simple_perpetuity_rejects_zero_rate(self):
+        result = perpetuity_value(1000, 0)
+        assert "error" in result
+
+    def test_growing_perpetuity_rejects_zero_rate(self):
+        result = perpetuity_value(1000, 0, 1)
+        assert "error" in result
+
+    def test_rule_of_72_rejects_non_positive_rate(self):
+        assert "error" in rule_of_72(0)
+        assert "error" in rule_of_72(-2)
+
+    def test_effective_rate_rejects_negative_compounding(self):
+        result = effective_annual_rate(12, -1)
+        assert "error" in result
