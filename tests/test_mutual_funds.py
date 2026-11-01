@@ -77,3 +77,17 @@ class TestNAV:
     def test_nav(self):
         result = nav_calculation(100000000, 500000, 5000000)
         assert result["nav"] == 19.9
+
+
+class TestInputGuards:
+    def test_sip_required_rejects_zero_duration(self):
+        result = sip_required_for_target(100000, 0, 0)
+        assert "error" in result
+
+    def test_nav_rejects_zero_units(self):
+        result = nav_calculation(100000, 0, 0)
+        assert "error" in result
+
+    def test_nav_rejects_negative_units(self):
+        result = nav_calculation(100000, 0, -10)
+        assert "error" in result
